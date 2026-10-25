@@ -1,0 +1,2942 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vesper Studio — Design, SEO, AI Video, Automation & Growth</title>
+  <!-- Google Fonts: Inter + Instrument Serif (Regular & Italic) + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js for sloemo01/diorama Live Pixel Diorama in #work -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            serif: ['"Instrument Serif"', 'Georgia', '"Times New Roman"', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --background: #ffffff;
+      --foreground: #0a0a0a;
+      --card: #ffffff;
+      --muted: #f4f4f5;
+      --muted-foreground: #737373;
+      --border: #e5e5e5;
+      --brand: #ea231a;
+      --accent-amber: #e59500;
+      --accent-cobalt: #2563eb;
+      --bezel-bg: #f1f1f2;
+    }
+
+    html.dark {
+      --background: #0a0a0a;
+      --foreground: #fafafa;
+      --card: #141414;
+      --muted: #1f1f1f;
+      --muted-foreground: #a1a1a1;
+      --border: rgba(255, 255, 255, 0.11);
+      --brand: #ff4324;
+      --accent-amber: #f5a623;
+      --accent-cobalt: #3b82f6;
+      --bezel-bg: #18181b;
+    }
+
+    * {
+      box-sizing: border-box;
+      border-color: var(--border);
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .font-instrument {
+      font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    .brand-glow-text {
+      color: var(--brand);
+      text-shadow: 0 0 26px color-mix(in srgb, var(--brand) 44%, transparent);
+    }
+
+    /* Signature evilbuttons.com .landing-bg 4px micro-grid + stepped bottom vermilion horizon glow */
+    .landing-bg {
+      --landing-grid: color-mix(in srgb, var(--foreground) 4.5%, transparent);
+      --landing-band-1: color-mix(in srgb, var(--brand) 8%, var(--background));
+      --landing-band-2: color-mix(in srgb, var(--brand) 18%, var(--background));
+      --landing-band-3: color-mix(in srgb, var(--brand) 32%, var(--background));
+      background-color: var(--background);
+      background-image:
+        linear-gradient(to right, var(--landing-grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--landing-grid) 1px, transparent 1px),
+        radial-gradient(120% 60% at 50% 100%, transparent 50%, color-mix(in srgb, var(--background) 65%, transparent) 100%),
+        linear-gradient(
+          to bottom,
+          var(--background) 0%,
+          var(--background) 56%,
+          var(--landing-band-1) 72%,
+          var(--landing-band-2) 86%,
+          var(--landing-band-3) 100%
+        );
+      background-size: 4px 4px, 4px 4px, 100% 100%, 100% 100%;
+    }
+
+    /* Tactile Skeuomorphic Hardware Button (evilbuttons.com signature) */
+    .skeuo-btn {
+      background: linear-gradient(180deg, #383838 0%, #242424 100%);
+      color: #fafafa;
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.9),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16),
+        0 1px 2px rgba(0, 0, 0, 0.28),
+        0 6px 14px -4px rgba(0, 0, 0, 0.45);
+      transition: transform 0.22s cubic-bezier(0.34, 1.35, 0.64, 1), box-shadow 0.2s ease, filter 0.2s ease;
+    }
+    .skeuo-btn:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+    .skeuo-btn:active {
+      transform: translateY(1px) scale(0.985);
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.95),
+        inset 0 2px 4px rgba(0, 0, 0, 0.45),
+        0 1px 1px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Vermilion Tactile Button Variant */
+    .skeuo-btn-brand {
+      background: linear-gradient(180deg, #ff4b3e 0%, #d91e15 100%);
+      color: #ffffff;
+      box-shadow:
+        0 0 0 1px rgba(180, 20, 12, 0.95),
+        inset 0 1px 0 rgba(255, 255, 255, 0.28),
+        0 2px 4px rgba(234, 35, 26, 0.3),
+        0 8px 20px -4px rgba(234, 35, 26, 0.5);
+      transition: transform 0.22s cubic-bezier(0.34, 1.35, 0.64, 1), filter 0.2s ease;
+    }
+    .skeuo-btn-brand:hover {
+      filter: brightness(1.07);
+      transform: translateY(-1px);
+    }
+    .skeuo-btn-brand:active {
+      transform: translateY(1px) scale(0.985);
+    }
+
+    /* Double-Bezel Window Card (evilbuttons.com signature container) */
+    .double-bezel {
+      background-color: var(--bezel-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.875rem;
+      padding: 0.25rem;
+      box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.26);
+    }
+    .double-bezel-inner {
+      background-color: var(--background);
+      border: 1px solid var(--border);
+      border-radius: 0.625rem;
+    }
+
+    /* 3D Coverflow Stage */
+    .coverflow-stage {
+      perspective: 1400px;
+      transform-style: preserve-3d;
+    }
+    .coverflow-card {
+      grid-area: 1 / 1;
+      transition:
+        transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform, opacity, filter;
+      user-select: none;
+    }
+    @keyframes active-stage-breathe {
+      0%, 100% {
+        box-shadow:
+          0 24px 48px -20px rgba(0, 0, 0, 0.32),
+          0 0 0 1px color-mix(in srgb, var(--brand) 38%, var(--border)),
+          0 0 36px -8px color-mix(in srgb, var(--brand) 28%, transparent);
+      }
+      50% {
+        box-shadow:
+          0 30px 60px -18px rgba(0, 0, 0, 0.4),
+          0 0 0 1px color-mix(in srgb, var(--brand) 65%, var(--border)),
+          0 0 48px -4px color-mix(in srgb, var(--brand) 42%, transparent);
+      }
+    }
+    .coverflow-card-active {
+      animation: active-stage-breathe 3.8s ease-in-out infinite;
+    }
+
+    /* Glowing Tier Dots */
+    .dot-vermilion {
+      background-color: var(--brand);
+      box-shadow: 0 0 10px 2px color-mix(in srgb, var(--brand) 60%, transparent);
+    }
+    .dot-amber {
+      background-color: var(--accent-amber);
+      box-shadow: 0 0 10px 2px color-mix(in srgb, var(--accent-amber) 60%, transparent);
+    }
+    .dot-cobalt {
+      background-color: var(--accent-cobalt);
+      box-shadow: 0 0 10px 2px color-mix(in srgb, var(--accent-cobalt) 60%, transparent);
+    }
+
+    /* Custom subtle scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: color-mix(in srgb, var(--foreground) 18%, transparent);
+      border-radius: 9999px;
+    }
+
+    @keyframes pulse-flow {
+      0% { stroke-dashoffset: 100; }
+      100% { stroke-dashoffset: 0; }
+    }
+    .animate-flow {
+      stroke-dasharray: 8 6;
+      animation: pulse-flow 1.8s linear infinite;
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-[#ea231a] selection:text-white">
+
+  <!-- =========================================================================
+       SECTION 1: INSET FRAMED HERO VIEWPORT + 3D PERSPECTIVE COVERFLOW STAGE
+       (Mirrors evilbuttons.com m-1.5 min-h-[calc(100dvh-0.75rem)] rounded-3xl)
+       ========================================================================= -->
+  <div class="m-1.5 sm:m-2 min-h-[calc(100dvh-1rem)] rounded-2xl sm:rounded-3xl border border-[var(--border)] overflow-hidden relative isolate landing-bg flex flex-col justify-between">
+
+    <!-- Ambient SVG Gaussian Blur Spotlight behind the 3D Carousel -->
+    <svg class="pointer-events-none absolute inset-x-0 bottom-[-12%] mx-auto w-[min(64rem,95vw)] h-[26rem] opacity-55 -z-10" viewBox="0 0 800 400" fill="none" aria-hidden="true">
+      <defs>
+        <filter id="showcase-glow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="70" result="blur" />
+        </filter>
+      </defs>
+      <ellipse cx="400" cy="270" rx="260" ry="110" fill="var(--brand)" fill-opacity="0.32" filter="url(#showcase-glow)" />
+    </svg>
+
+    <!-- Top Navigation Bar -->
+    <header class="w-full max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between z-20">
+      <!-- Brand Wordmark: Tactile Emblem + Inter + Instrument Serif Italic -->
+      <a href="#" class="flex items-center gap-2.5 group">
+        <span class="skeuo-btn w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-semibold tracking-tighter">
+          V<span class="text-[#ff4324]">.</span>
+        </span>
+        <span class="text-base font-semibold tracking-[-0.03em] flex items-baseline gap-1">
+          <span>Vesper</span>
+          <span class="font-instrument text-xl brand-glow-text">Studio</span>
+        </span>
+      </a>
+
+      <!-- Center Nav Links -->
+      <nav class="hidden md:flex items-center gap-6 text-xs font-medium text-[var(--muted-foreground)]">
+        <a href="#stage" class="hover:text-[var(--foreground)] transition">5 Live Engines</a>
+        <a href="#work" class="hover:text-[var(--foreground)] transition">Selected Work</a>
+        <a href="#roi" class="hover:text-[var(--foreground)] transition">Growth Simulator</a>
+        <a href="#slots" class="hover:text-[var(--foreground)] transition">Partner Slots</a>
+        <button onclick="openLlmsModal()" class="font-mono text-xs hover:text-[var(--brand)] transition">/llms.txt</button>
+      </nav>
+
+      <!-- Right Controls: Live Engine Counter Pill (evilbuttons easter-egg style) + Theme Toggle -->
+      <div class="flex items-center gap-2">
+        <button
+          id="engine-counter-pill"
+          onclick="cycleCarousel(1)"
+          title="Interact with all 5 engines to unlock the Founder Growth Blueprint"
+          class="rounded-full border border-[var(--border)] bg-[var(--background)]/75 backdrop-blur-md px-3 py-1 text-xs font-mono flex items-center gap-2 hover:border-[var(--brand)] transition shadow-2xs"
+        >
+          <span class="w-2 h-2 rounded-full dot-vermilion animate-pulse"></span>
+          <span id="engines-tested-text">1/5 Engines Tested</span>
+        </button>
+
+        <button
+          id="theme-toggle"
+          onclick="toggleTheme()"
+          aria-label="Toggle Light/Dark Mode"
+          class="w-8 h-8 rounded-lg border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md flex items-center justify-center text-xs hover:bg-[var(--muted)] transition"
+          title="Switch Light / Dark Mode"
+        >
+          <span id="theme-icon">☾</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Centered Hero Copy Block -->
+    <section class="max-w-3xl mx-auto px-4 pt-2 sm:pt-4 text-center z-10 flex flex-col items-center">
+      <!-- Frosted Top Pill -->
+      <div class="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--background)]/60 backdrop-blur-md px-3.5 py-1 text-xs text-[var(--muted-foreground)] mb-4 shadow-2xs">
+        <span class="font-mono uppercase tracking-[0.16em] text-[var(--brand)] font-semibold">Q4 Cohort</span>
+        <span class="opacity-40">·</span>
+        <span>Design, SEO, AI Video, Automation &amp; Growth</span>
+      </div>
+
+      <!-- Hero Headline (Inter 600 + Instrument Serif Italic Inflection) -->
+      <h1 class="text-4xl sm:text-6xl font-semibold tracking-[-0.035em] leading-[1.03] text-balance">
+        Pages, video, and growth systems built with an
+        <span class="font-instrument font-normal text-[1.12em] brand-glow-text px-1">unfair</span>
+        advantage.
+      </h1>
+
+      <!-- Hero Subcopy -->
+      <p class="max-w-xl text-balance text-sm sm:text-base text-[var(--muted-foreground)] mt-3.5 leading-relaxed">
+        We design conversion-obsessed pages, engineer programmatic SEO &amp; <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-[var(--muted)] text-[var(--foreground)]">llms.txt</code> visibility, synthesize AI launch videos, and automate outbound growth. Test all five live engines below.
+      </p>
+
+      <!-- Dual CTA Bar (evilbuttons.com grid-cols-2 max-w-sm) -->
+      <div class="mt-5 grid grid-cols-2 gap-2.5 w-full max-w-sm">
+        <button
+          onclick="openBriefModal('Full-Stack Growth Partner')"
+          class="skeuo-btn h-10 sm:h-11 rounded-lg font-medium text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span>Start a project</span>
+          <span class="text-[#ff4324]">→</span>
+        </button>
+        <a
+          href="#work"
+          class="h-10 sm:h-11 rounded-lg border border-[var(--border)] bg-[var(--background)]/85 backdrop-blur-md text-[var(--foreground)] font-medium text-xs sm:text-sm hover:bg-[var(--muted)] transition flex items-center justify-center gap-1.5"
+        >
+          <span>Inspect shipped work</span>
+          <span class="font-mono text-xs opacity-60">↓</span>
+        </a>
+      </div>
+
+      <!-- Pillar Selector Pills for the 3D Stage -->
+      <div class="mt-5 flex flex-wrap items-center justify-center gap-1.5" id="carousel-tabs">
+        <button onclick="setCarouselIndex(0)" data-tab="0" class="carousel-tab px-2.5 py-1 rounded-md text-xs font-mono uppercase tracking-[0.12em] transition border">01 · Page Design</button>
+        <button onclick="setCarouselIndex(1)" data-tab="1" class="carousel-tab px-2.5 py-1 rounded-md text-xs font-mono uppercase tracking-[0.12em] transition border">02 · AI Video</button>
+        <button onclick="setCarouselIndex(2)" data-tab="2" class="carousel-tab px-2.5 py-1 rounded-md text-xs font-mono uppercase tracking-[0.12em] transition border">03 · SEO &amp; LLMs</button>
+        <button onclick="setCarouselIndex(3)" data-tab="3" class="carousel-tab px-2.5 py-1 rounded-md text-xs font-mono uppercase tracking-[0.12em] transition border">04 · AI Automation</button>
+        <button onclick="setCarouselIndex(4)" data-tab="4" class="carousel-tab px-2.5 py-1 rounded-md text-xs font-mono uppercase tracking-[0.12em] transition border">05 · Growth Loop</button>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         THE 5-CARD 3D PERSPECTIVE COVERFLOW STAGE ([perspective:1400px])
+         ======================================================================= -->
+    <section id="stage" class="relative w-full max-w-6xl mx-auto px-4 pt-4 pb-6 flex-1 flex flex-col items-center justify-center z-10">
+      <div
+        onmouseenter="setHoverPause(true)"
+        onmouseleave="setHoverPause(false)"
+        class="relative w-full grid place-items-center coverflow-stage min-h-[23rem] sm:min-h-[25rem]"
+      >
+
+        <!-- CARD 0: PAGE DESIGN ENGINE -->
+        <article
+          data-card-index="0"
+          onclick="handleCardClick(0, event)"
+          class="coverflow-card double-bezel w-[min(31rem,calc(100vw-2.5rem))] h-[22.5rem] sm:h-[24rem] flex flex-col cursor-pointer"
+        >
+          <!-- Window Chrome Bar -->
+          <div class="h-8 px-3 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full dot-vermilion"></span>
+              <h3 class="font-medium tracking-[-0.01em]">ConversionPageEngine.tsx</h3>
+            </div>
+            <span id="design-lift-badge" class="font-mono text-xs px-2 py-0.5 rounded bg-[var(--background)] border border-[var(--border)] text-[var(--brand)] font-semibold">
+              +3.8x CVR Lift
+            </span>
+          </div>
+
+          <!-- Inner Interactive Stage -->
+          <div class="double-bezel-inner flex-1 min-h-0 p-4 flex flex-col justify-between relative overflow-hidden">
+            <!-- Top Row: Mono Tag + Mode Switch -->
+            <div class="flex items-center justify-between z-10">
+              <span class="font-mono text-xs tracking-[0.16em] uppercase text-[var(--muted-foreground)]">01 / PAGE DESIGN</span>
+              <button
+                onclick="toggleDesignMode(event)"
+                id="design-mode-toggle"
+                class="px-2.5 py-1 rounded-md border border-[var(--border)] bg-[var(--muted)] text-xs font-mono hover:border-[var(--brand)] transition"
+              >
+                Mode: <strong id="design-mode-label" class="text-[var(--brand)]">High-Craft Editorial</strong>
+              </button>
+            </div>
+
+            <!-- Center Interactive Preview Box -->
+            <div id="design-preview-stage" class="my-auto rounded-lg border border-[var(--border)] bg-[var(--muted)]/50 p-3.5 transition-all duration-300">
+              <div class="flex items-center justify-between mb-2">
+                <span id="design-preview-pill" class="text-xs font-mono px-2 py-0.5 rounded-full bg-[var(--background)] border border-[var(--border)]">
+                  Inter + Instrument Serif Italic
+                </span>
+                <span id="design-cvr-readout" class="font-mono text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                  CVR: 5.42% ▲
+                </span>
+              </div>
+              <p id="design-preview-headline" class="text-lg sm:text-xl font-semibold tracking-[-0.03em] leading-snug">
+                Turn passive traffic into <span class="font-instrument text-2xl brand-glow-text">obsessive</span> buyers.
+              </p>
+              <div class="mt-3 flex items-center gap-2">
+                <button
+                  onclick="triggerDesignExperiment(event)"
+                  class="skeuo-btn px-3.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5"
+                >
+                  <span>⚡ Run A/B Craft Pass</span>
+                </button>
+                <span id="design-ab-status" class="text-xs font-mono text-[var(--muted-foreground)]">99.4% confidence</span>
+              </div>
+            </div>
+
+            <!-- Bottom Frosted Pills -->
+            <div class="flex items-center justify-between gap-2 pt-1 z-10">
+              <a href="#work" onclick="event.stopPropagation()" class="rounded-full border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md px-3 py-1 text-xs font-medium hover:border-[var(--foreground)] transition">
+                View 14 shipped pages ↗
+              </a>
+              <button onclick="copyEngineBrief(event, 'Page Design Engine')" class="rounded-full border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md px-3 py-1 text-xs font-mono hover:border-[var(--brand)] transition">
+                Copy design spec
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 1: AI VIDEO GENERATION ENGINE -->
+        <article
+          data-card-index="1"
+          onclick="handleCardClick(1, event)"
+          class="coverflow-card double-bezel w-[min(31rem,calc(100vw-2.5rem))] h-[22.5rem] sm:h-[24rem] flex flex-col cursor-pointer"
+        >
+          <div class="h-8 px-3 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full dot-amber"></span>
+              <h3 class="font-medium tracking-[-0.01em]">AISynthesisReel.studio</h3>
+            </div>
+            <span class="font-mono text-xs px-2 py-0.5 rounded bg-[var(--background)] border border-[var(--border)]">
+              4K · 60 FPS
+            </span>
+          </div>
+
+          <div class="double-bezel-inner flex-1 min-h-0 p-4 flex flex-col justify-between relative overflow-hidden">
+            <div class="flex items-center justify-between z-10">
+              <span class="font-mono text-xs tracking-[0.16em] uppercase text-[var(--muted-foreground)]">02 / AI VIDEO GEN</span>
+              <div class="flex items-center gap-1">
+                <button onclick="setVideoScene(event, 0)" id="scene-btn-0" class="px-2 py-0.5 rounded text-xs font-mono border border-[var(--brand)] bg-[var(--brand)]/10 text-[var(--brand)]">Reveal</button>
+                <button onclick="setVideoScene(event, 1)" id="scene-btn-1" class="px-2 py-0.5 rounded text-xs font-mono border border-[var(--border)]">Kinetic</button>
+                <button onclick="setVideoScene(event, 2)" id="scene-btn-2" class="px-2 py-0.5 rounded text-xs font-mono border border-[var(--border)]">3D Orbit</button>
+              </div>
+            </div>
+
+            <!-- Interactive Procedural Video Synthesizer Stage -->
+            <div class="my-auto relative rounded-lg overflow-hidden border border-[var(--border)] bg-[#0d0d0f] text-white h-36 flex flex-col justify-between p-3">
+              <canvas id="ai-video-canvas" width="420" height="140" class="absolute inset-0 w-full h-full opacity-80 pointer-events-none"></canvas>
+              <div class="relative z-10 flex items-center justify-between text-xs font-mono">
+                <span id="video-prompt-tag" class="px-2 py-0.5 rounded bg-black/60 border border-white/15 text-neutral-200">
+                  PROMPT: "Tactile hardware launch, vermilion rim light"
+                </span>
+                <span id="video-timecode" class="text-[#ff4324]">00:04:18</span>
+              </div>
+              <div class="relative z-10 flex items-center justify-between">
+                <button onclick="synthesizeVideoFrame(event)" class="skeuo-btn-brand px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5">
+                  <span>▶ Synthesize Launch Cut</span>
+                </button>
+                <span id="video-roas-metric" class="font-mono text-xs bg-black/60 px-2 py-0.5 rounded border border-white/10">
+                  Ad CTR: 4.9% (+240%)
+                </span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-2 pt-1 z-10">
+              <a href="#work" onclick="event.stopPropagation()" class="rounded-full border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md px-3 py-1 text-xs font-medium hover:border-[var(--foreground)] transition">
+                Watch launch reels ↗
+              </a>
+              <button onclick="copyEngineBrief(event, 'AI Video Generation Engine')" class="rounded-full border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md px-3 py-1 text-xs font-mono hover:border-[var(--brand)] transition">
+                Copy video prompt pack
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 2: PROGRAMMATIC SEO & LLMS.TXT RADAR -->
+        <article
+          data-card-index="2"
+          onclick="handleCardClick(2, event)"
+          class="coverflow-card double-bezel w-[min(31rem,calc(100vw-2.5rem))] h-[22.5rem] sm:h-[24rem] flex flex-col cursor-pointer"
+        >
+          <div class="h-8 px-3 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full dot-cobalt"></span>
+              <h3 class="font-medium tracking-[-0.01em]">ProgrammaticSEORadar.ai</h3>
+            </div>
+            <span id="seo-citation-badge" class="font-mono text-xs px-2 py-0.5 rounded bg-[var(--background)] border border-[var(--border)] text-emerald-600 dark:text-emerald-400 font-semibold">
+              #1 ChatGPT + Google
+            </span>
+          </div>
+
+          <div class="double-bezel-inner flex-1 min-h-0 p-4 flex flex-col justify-between relative overflow-hidden">
+            <div class="flex items-center justify-between z-10">
+              <span class="font-mono text-xs tracking-[0.16em] uppercase text-[var(--muted-foreground)]">03 / SEO &amp; LLMS.TXT</span>
+              <span id="seo-traffic-counter" class="font-mono text-xs font-semibold text-[var(--brand)]">148,900 visits/mo</span>
+            </div>
+
+            <!-- Interactive SEO + LLM Citation Graph -->
+            <div class="my-auto rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 p-3 space-y-2.5">
+              <div class="space-y-1.5 text-xs font-mono">
+                <div class="flex items-center justify-between">
+                  <span>Google Top-3 Clusters</span>
+                  <span id="seo-bar-1-val" class="font-semibold">94% Indexed</span>
+                </div>
+                <div class="w-full h-2 rounded-full bg-[var(--border)] overflow-hidden">
+                  <div id="seo-bar-1" class="h-full bg-[var(--foreground)] transition-all duration-500" style="width: 94%"></div>
+                </div>
+
+                <div class="flex items-center justify-between pt-1">
+                  <span>Perplexity / ChatGPT Citations (<code class="text-[var(--brand)]">/llms.txt</code>)</span>
+                  <span id="seo-bar-2-val" class="font-semibold text-[var(--brand)]">+410% Mentions</span>
+                </div>
+                <div class="w-full h-2 rounded-full bg-[var(--border)] overflow-hidden">
+                  <div id="seo-bar-2" class="h-full bg-[var(--brand)] transition-all duration-500" style="width: 88%"></div>
+                </div>
+              </div>
+
+              <div class="pt-1 flex items-center justify-between gap-2">
+                <button onclick="deployProgrammaticSEO(event)" class="skeuo-btn px-3 py-1.5 rounded-md text-xs font-medium">
+                  <span>🚀 Deploy 250 Comparison Pages</span>
+                </button>
+                <button onclick="openLlmsModal(event)" class="text-xs font-mono underline hover:text-[var(--brand)]">
+                  Inspect llms.txt
+                </button>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-2 pt-1 z-10">
+              <a href="#work" onclick="event.stopPropagation()" class="rounded-full border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md px-3 py-1 text-xs font-medium hover:border-[var(--foreground)] transition">
+                See traffic graphs ↗
+              </a>
+              <button onclick="copyEngineBrief(event, 'Programmatic SEO + llms.txt')" class="rounded-full border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md px-3 py-1 text-xs font-mono hover:border-[var(--brand)] transition">
+                Copy SEO architecture
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 3: AI AUTOMATION PIPELINE -->
+        <article
+          data-card-index="3"
+          onclick="handleCardClick(3, event)"
+          class="coverflow-card double-bezel w-[min(31rem,calc(100vw-2.5rem))] h-[22.5rem] sm:h-[24rem] flex flex-col cursor-pointer"
+        >
+          <div class="h-8 px-3 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full dot-vermilion"></span>
+              <h3 class="font-medium tracking-[-0.01em]">AutonomousOpsPipeline.workflow</h3>
+            </div>
+            <span id="automation-latency" class="font-mono text-xs px-2 py-0.5 rounded bg-[var(--background)] border border-[var(--border)]">
+              184ms Latency
+            </span>
+          </div>
+
+          <div class="double-bezel-inner flex-1 min-h-0 p-4 flex flex-col justify-between relative overflow-hidden">
+            <div class="flex items-center justify-between z-10">
+              <span class="font-mono text-xs tracking-[0.16em] uppercase text-[var(--muted-foreground)]">04 / AI AUTOMATION</span>
+              <span id="auto-hours-saved" class="font-mono text-xs text-emerald-600 dark:text-emerald-400 font-semibold">42.5 hrs/wk saved</span>
+            </div>
+
+            <!-- Interactive Node Pipeline -->
+            <div class="my-auto rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 p-3">
+              <div class="grid grid-cols-3 gap-2 text-center font-mono text-xs">
+                <div id="node-1" class="p-2 rounded border border-[var(--border)] bg-[var(--background)] transition-all">
+                  <div class="text-[var(--muted-foreground)]">01. INGEST</div>
+                  <div class="font-semibold mt-0.5">Lead + Intent</div>
+                </div>
+                <div id="node-2" class="p-2 rounded border border-[var(--brand)] bg-[var(--brand)]/10 transition-all">
+                  <div class="text-[var(--brand)]">02. AI AGENT</div>
+                  <div class="font-semibold mt-0.5">Custom Reel + Audit</div>
+                </div>
+                <div id="node-3" class="p-2 rounded border border-[var(--border)] bg-[var(--background)] transition-all">
+                  <div class="text-[var(--muted-foreground)]">03. CLOSE</div>
+                  <div class="font-semibold mt-0.5">Booked on Cal</div>
+                </div>
+              </div>
+
+              <div class="mt-3 flex items-center justify-between gap-2">
+                <button onclick="fireAutomationPulse(event)" class="skeuo-btn px-3.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5">
+                  <span>⚡ Trigger Agent Run</span>
+                </button>
+                <span id="auto-run-log" class="font-mono text-xs text-[var(--muted-foreground)] truncate">
+                  Ready · Webhook listening
+                </span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-2 pt-1 z-10">
+              <a href="#work" onclick="event.stopPropagation()" class="rounded-full border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md px-3 py-1 text-xs font-medium hover:border-[var(--foreground)] transition">
+                Explore agent workflows ↗
+              </a>
+              <button onclick="copyEngineBrief(event, 'AI Workflow Automation')" class="rounded-full border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md px-3 py-1 text-xs font-mono hover:border-[var(--brand)] transition">
+                Copy agent JSON
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 4: COMPOUNDING GROWTH LOOP -->
+        <article
+          data-card-index="4"
+          onclick="handleCardClick(4, event)"
+          class="coverflow-card double-bezel w-[min(31rem,calc(100vw-2.5rem))] h-[22.5rem] sm:h-[24rem] flex flex-col cursor-pointer"
+        >
+          <div class="h-8 px-3 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full dot-amber"></span>
+              <h3 class="font-medium tracking-[-0.01em]">CompoundingGrowthLoop.sys</h3>
+            </div>
+            <span id="growth-k-badge" class="font-mono text-xs px-2 py-0.5 rounded bg-[var(--background)] border border-[var(--border)] text-[var(--brand)] font-semibold">
+              K-Factor: 1.38x
+            </span>
+          </div>
+
+          <div class="double-bezel-inner flex-1 min-h-0 p-4 flex flex-col justify-between relative overflow-hidden">
+            <div class="flex items-center justify-between z-10">
+              <span class="font-mono text-xs tracking-[0.16em] uppercase text-[var(--muted-foreground)]">05 / GROWTH SYSTEMS</span>
+              <span id="growth-arr-readout" class="font-mono text-xs font-semibold">+$2.8M Pipeline / Qtr</span>
+            </div>
+
+            <!-- Interactive Growth Multiplier Control -->
+            <div class="my-auto rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 p-3">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="font-mono text-[var(--muted-foreground)]">EXPERIMENT VELOCITY</span>
+                <span id="growth-velocity-label" class="font-mono font-semibold text-[var(--brand)]">12 Ships / Week</span>
+              </div>
+              <input
+                id="growth-slider"
+                type="range"
+                min="2"
+                max="20"
+                value="12"
+                onclick="event.stopPropagation()"
+                oninput="updateGrowthLoop(this.value)"
+                class="w-full accent-[#ea231a] cursor-pointer"
+              />
+              <div class="mt-2 grid grid-cols-3 gap-2 text-center font-mono text-xs">
+                <div class="p-1.5 rounded bg-[var(--background)] border border-[var(--border)]">
+                  <div class="text-[var(--muted-foreground)]">CAC PAYBACK</div>
+                  <div id="growth-cac" class="font-semibold mt-0.5">3.1 mos</div>
+                </div>
+                <div class="p-1.5 rounded bg-[var(--background)] border border-[var(--border)]">
+                  <div class="text-[var(--muted-foreground)]">ACTIVATION</div>
+                  <div id="growth-act" class="font-semibold mt-0.5">64.8%</div>
+                </div>
+                <div class="p-1.5 rounded bg-[var(--background)] border border-[var(--border)]">
+                  <div class="text-[var(--muted-foreground)]">ROAS</div>
+                  <div id="growth-roas" class="font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5">6.4x</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-2 pt-1 z-10">
+              <a href="#roi" onclick="event.stopPropagation()" class="rounded-full border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md px-3 py-1 text-xs font-medium hover:border-[var(--foreground)] transition">
+                Open ROI calculator ↗
+              </a>
+              <button onclick="copyEngineBrief(event, 'Compounding Growth Loop')" class="rounded-full border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md px-3 py-1 text-xs font-mono hover:border-[var(--brand)] transition">
+                Copy growth playbook
+              </button>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- Bottom Carousel Navigation Bar (Prev / Active Status + Auto-Orbit Progress / Next) -->
+      <div class="mt-3 flex flex-wrap items-center justify-center gap-2.5 z-20">
+        <button
+          onclick="cycleCarousel(-1, true)"
+          aria-label="Previous Engine"
+          class="skeuo-btn w-9 h-9 rounded-full flex items-center justify-center text-xs font-mono cursor-pointer"
+        >
+          ←
+        </button>
+
+        <div class="relative overflow-hidden rounded-full border border-[var(--border)] bg-[var(--background)]/85 backdrop-blur-md px-4 py-1.5 text-xs font-mono flex items-center gap-2.5">
+          <span class="w-1.5 h-1.5 rounded-full dot-vermilion"></span>
+          <span class="text-[var(--muted-foreground)]">ACTIVE STAGE:</span>
+          <span id="active-stage-name" class="font-semibold text-[var(--foreground)]">01 / Conversion Page Design</span>
+          <!-- Animated Auto-Orbit Progress Bar at bottom of pill -->
+          <span class="absolute inset-x-0 bottom-0 h-[2px] bg-[var(--border)]/50">
+            <span id="orbit-progress-bar" class="block h-full bg-[var(--brand)] transition-none" style="width: 0%;"></span>
+          </span>
+        </div>
+
+        <button
+          onclick="cycleCarousel(1, true)"
+          aria-label="Next Engine"
+          class="skeuo-btn w-9 h-9 rounded-full flex items-center justify-center text-xs font-mono cursor-pointer"
+        >
+          →
+        </button>
+
+        <button
+          id="auto-orbit-toggle"
+          onclick="toggleAutoOrbit()"
+          class="rounded-full border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md px-3 py-1.5 text-xs font-mono flex items-center gap-1.5 hover:border-[var(--brand)] transition cursor-pointer"
+          title="Pause or resume automatic 3D carousel scroll"
+        >
+          <span id="auto-orbit-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="auto-orbit-label">AUTO-ORBIT: ON</span>
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- =========================================================================
+       SECTION 2: SELECTED WORK & LIVE SHIPPED SYSTEMS MATRIX (max-w-5xl)
+       ========================================================================= -->
+  <section id="work" class="max-w-5xl mx-auto px-4 sm:px-6 py-20">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+      <div>
+        <div class="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)] mb-2">
+          <span class="w-2 h-2 rounded-full dot-vermilion"></span>
+          <span>SHIPPED PORTFOLIO &amp; VERIFIED TELEMETRY</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-semibold tracking-[-0.03em] leading-[1.1]">
+          Designed like art. Engineered to <span class="font-instrument text-[1.15em] brand-glow-text">compound.</span>
+        </h2>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="flex flex-wrap gap-1.5" id="work-filters">
+        <button onclick="filterWork('all')" data-filter="all" class="work-filter-btn px-3 py-1.5 rounded-lg text-xs font-mono border bg-[var(--foreground)] text-[var(--background)] cursor-pointer">All Work (5)</button>
+        <button onclick="filterWork('design')" data-filter="design" class="work-filter-btn px-3 py-1.5 rounded-lg text-xs font-mono border border-[var(--border)] hover:bg-[var(--muted)] cursor-pointer">Page Design</button>
+        <button onclick="filterWork('automation')" data-filter="automation" class="work-filter-btn px-3 py-1.5 rounded-lg text-xs font-mono border border-[var(--border)] hover:bg-[var(--muted)] cursor-pointer">AI &amp; Second Brain</button>
+        <button onclick="filterWork('seo')" data-filter="seo" class="work-filter-btn px-3 py-1.5 rounded-lg text-xs font-mono border border-[var(--border)] hover:bg-[var(--muted)] cursor-pointer">Multilingual &amp; SEO</button>
+        <button onclick="filterWork('video')" data-filter="video" class="work-filter-btn px-3 py-1.5 rounded-lg text-xs font-mono border border-[var(--border)] hover:bg-[var(--muted)] cursor-pointer">3D &amp; Visual Craft</button>
+      </div>
+    </div>
+
+    <!-- Live Portfolio Case Cards (4 Live URLs + Isometric 3D Craft Showcase) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="work-grid">
+      <!-- Case 01: Logo.io (https://logoio.runable.site/) -->
+      <article data-category="design" class="work-card double-bezel flex flex-col group">
+        <div class="h-8 px-3 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full dot-emerald"></span>
+            <span class="font-medium">01 · Logo.io — AI Logo Builder</span>
+          </div>
+          <a href="https://logoio.runable.site/" target="_blank" rel="noopener noreferrer" class="font-mono text-xs text-[var(--brand)] font-semibold hover:underline flex items-center gap-1">
+            <span>logoio.runable.site</span>
+            <span>↗</span>
+          </a>
+        </div>
+        <div class="double-bezel-inner p-4 sm:p-5 flex-1 flex flex-col justify-between">
+          <div>
+            <!-- Live Screenshot Viewport -->
+            <a href="https://logoio.runable.site/" target="_blank" rel="noopener noreferrer" class="block relative rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--muted)] mb-4 aspect-[16/10] group/img">
+              <img
+                src="./assets/logoio.png"
+                onerror="this.onerror=null;this.src='https://iad.microlink.io/vZXPOzKA52odQEkxIf1Z7glrL44_gyl3Xvp55OI24614bqgd9ki9HqAR-KEPCjqwxoKBssTalM65N-81yVRo0g.png';"
+                alt="Logo.io - The AI Logo Maker for founders and builders"
+                class="w-full h-full object-cover object-top transition-transform duration-500 group-hover/img:scale-[1.04]"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
+                <span class="px-2.5 py-1 rounded-md bg-black/80 text-white font-mono text-xs backdrop-blur-sm">Launch Live Deployment ↗</span>
+                <span class="px-2 py-0.5 rounded bg-[var(--brand)] text-white font-mono text-xs">LIVE</span>
+              </div>
+            </a>
+
+            <div class="flex items-center justify-between text-xs font-mono text-[var(--muted-foreground)] mb-2">
+              <span>BRAND DESIGN + AI VECTOR ENGINE</span>
+              <span>SERIF + PIXEL FLORA UI</span>
+            </div>
+            <h3 class="text-xl font-semibold tracking-[-0.02em]">
+              The AI Logo Maker for <span class="font-instrument text-2xl brand-glow-text">founders</span> &amp; builders.
+            </h3>
+            <p class="text-xs sm:text-sm text-[var(--muted-foreground)] mt-2 leading-relaxed">
+              Sketch an idea or describe your brand—turns natural language prompts into sleek, scalable vector logos in seconds inside a cobalt pixel-botanical editorial stage.
+            </p>
+          </div>
+          <div class="mt-5 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-mono">
+            <a href="https://logoio.runable.site/" target="_blank" rel="noopener noreferrer" class="skeuo-btn px-3 py-1.5 rounded-lg font-medium inline-flex items-center gap-1.5">
+              <span>Visit Live Site</span>
+              <span class="text-[var(--brand)]">↗</span>
+            </a>
+            <button onclick="openBriefModal('Case Study: Logo.io AI Brand Builder')" class="text-[var(--brand)] hover:underline cursor-pointer">Build similar →</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Case 02: Peblo (https://notes-peblo-frontend.vercel.app/) -->
+      <article data-category="design" class="work-card double-bezel flex flex-col group">
+        <div class="h-8 px-3 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full dot-emerald"></span>
+            <span class="font-medium">02 · Peblo — AI Notes &amp; Productivity</span>
+          </div>
+          <a href="https://notes-peblo-frontend.vercel.app/" target="_blank" rel="noopener noreferrer" class="font-mono text-xs text-[var(--brand)] font-semibold hover:underline flex items-center gap-1">
+            <span>notes-peblo.vercel.app</span>
+            <span>↗</span>
+          </a>
+        </div>
+        <div class="double-bezel-inner p-4 sm:p-5 flex-1 flex flex-col justify-between">
+          <div>
+            <!-- Live Screenshot Viewport -->
+            <a href="https://notes-peblo-frontend.vercel.app/" target="_blank" rel="noopener noreferrer" class="block relative rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--muted)] mb-4 aspect-[16/10] group/img">
+              <img
+                src="./assets/peblo.png"
+                onerror="this.onerror=null;this.src='https://iad.microlink.io/8pRifqn0SjbPRrc5p0apQPBIOnOz0mp4dYGntBNRPjdVNXyVaM236FnTSNmXub39uzdkNGkIaMKbz9YBpaS3jQ.png';"
+                alt="Peblo - Beautiful tools for your best notes"
+                class="w-full h-full object-cover object-top transition-transform duration-500 group-hover/img:scale-[1.04]"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
+                <span class="px-2.5 py-1 rounded-md bg-black/80 text-white font-mono text-xs backdrop-blur-sm">Launch Live Deployment ↗</span>
+                <span class="px-2 py-0.5 rounded bg-[var(--brand)] text-white font-mono text-xs">LIVE</span>
+              </div>
+            </a>
+
+            <div class="flex items-center justify-between text-xs font-mono text-[var(--muted-foreground)] mb-2">
+              <span>EDITORIAL LANDING PAGE + AI SUMMARIES</span>
+              <span>ZERO-CLUTTER UX</span>
+            </div>
+            <h3 class="text-xl font-semibold tracking-[-0.02em]">
+              Beautiful tools for your <span class="font-instrument text-2xl brand-glow-text">best notes</span> — without the clutter.
+            </h3>
+            <p class="text-xs sm:text-sm text-[var(--muted-foreground)] mt-2 leading-relaxed">
+              Crafted an inviting warm-serif landing experience with pixel-art cloudscapes and marigold flora to showcase AI note capture, instant summaries, and frictionless sharing.
+            </p>
+          </div>
+          <div class="mt-5 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-mono">
+            <a href="https://notes-peblo-frontend.vercel.app/" target="_blank" rel="noopener noreferrer" class="skeuo-btn px-3 py-1.5 rounded-lg font-medium inline-flex items-center gap-1.5">
+              <span>Visit Live Site</span>
+              <span class="text-[var(--brand)]">↗</span>
+            </a>
+            <button onclick="openBriefModal('Case Study: Peblo Notes & AI Workspace')" class="text-[var(--brand)] hover:underline cursor-pointer">Build similar →</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Case 03: Memora (https://memora-frontend-five.vercel.app/) -->
+      <article data-category="automation" class="work-card double-bezel flex flex-col group">
+        <div class="h-8 px-3 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full dot-emerald"></span>
+            <span class="font-medium">03 · Memora — AI-Powered Second Brain</span>
+          </div>
+          <a href="https://memora-frontend-five.vercel.app/" target="_blank" rel="noopener noreferrer" class="font-mono text-xs text-[var(--brand)] font-semibold hover:underline flex items-center gap-1">
+            <span>memora-frontend.vercel.app</span>
+            <span>↗</span>
+          </a>
+        </div>
+        <div class="double-bezel-inner p-4 sm:p-5 flex-1 flex flex-col justify-between">
+          <div>
+            <!-- Live Screenshot Viewport -->
+            <a href="https://memora-frontend-five.vercel.app/" target="_blank" rel="noopener noreferrer" class="block relative rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--muted)] mb-4 aspect-[16/10] group/img">
+              <img
+                src="./assets/memora.png"
+                onerror="this.onerror=null;this.src='https://iad.microlink.io/1Ctc7voqBNb9VH9oCrpJ8u-2POe4pjKOeteU49wPG6iKJOnSh0UkXsIOWF2KbMboJMwgRkVrMHGB27LFESwWUw.png';"
+                alt="Memora - The AI-Powered Second Brain"
+                class="w-full h-full object-cover object-top transition-transform duration-500 group-hover/img:scale-[1.04]"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
+                <span class="px-2.5 py-1 rounded-md bg-black/80 text-white font-mono text-xs backdrop-blur-sm">Launch Live Deployment ↗</span>
+                <span class="px-2 py-0.5 rounded bg-[var(--brand)] text-white font-mono text-xs">LIVE</span>
+              </div>
+            </a>
+
+            <div class="flex items-center justify-between text-xs font-mono text-[var(--muted-foreground)] mb-2">
+              <span>AI AUTOMATION + KNOWLEDGE GRAPH</span>
+              <span>NATURAL LANGUAGE RECALL</span>
+            </div>
+            <h3 class="text-xl font-semibold tracking-[-0.02em]">
+              Capture anything. Understand everything with an <span class="font-instrument text-2xl brand-glow-text">AI Second Brain.</span>
+            </h3>
+            <p class="text-xs sm:text-sm text-[var(--muted-foreground)] mt-2 leading-relaxed">
+              Atmospheric dusk pixel-art hero paired with natural-language memory retrieval—turning scattered ideas, links, and messages into a personal knowledge graph.
+            </p>
+          </div>
+          <div class="mt-5 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-mono">
+            <a href="https://memora-frontend-five.vercel.app/" target="_blank" rel="noopener noreferrer" class="skeuo-btn px-3 py-1.5 rounded-lg font-medium inline-flex items-center gap-1.5">
+              <span>Visit Live Site</span>
+              <span class="text-[var(--brand)]">↗</span>
+            </a>
+            <button onclick="openBriefModal('Case Study: Memora AI Knowledge Graph')" class="text-[var(--brand)] hover:underline cursor-pointer">Build similar →</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Case 04: Note.io (https://notes-io-frontend.vercel.app/) -->
+      <article data-category="seo" class="work-card double-bezel flex flex-col group">
+        <div class="h-8 px-3 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full dot-emerald"></span>
+            <span class="font-medium">04 · Note.io — Multilingual AI Notes</span>
+          </div>
+          <a href="https://notes-io-frontend.vercel.app/" target="_blank" rel="noopener noreferrer" class="font-mono text-xs text-[var(--brand)] font-semibold hover:underline flex items-center gap-1">
+            <span>notes-io.vercel.app</span>
+            <span>↗</span>
+          </a>
+        </div>
+        <div class="double-bezel-inner p-4 sm:p-5 flex-1 flex flex-col justify-between">
+          <div>
+            <!-- Live Screenshot Viewport -->
+            <a href="https://notes-io-frontend.vercel.app/" target="_blank" rel="noopener noreferrer" class="block relative rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--muted)] mb-4 aspect-[16/10] group/img">
+              <img
+                src="./assets/noteio.png"
+                onerror="this.onerror=null;this.src='https://iad.microlink.io/h3dIpUuRSaGoF7PVAtkCHinU_s6VtyT4QDgBybrS0wLx_ksPhP0xnexg_j-OlFG6NyVN2ecAT-TZzS1ZOqN5Fw.png';"
+                alt="Note.io - Complete platform for Multilingual Notes"
+                class="w-full h-full object-cover object-top transition-transform duration-500 group-hover/img:scale-[1.04]"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
+                <span class="px-2.5 py-1 rounded-md bg-black/80 text-white font-mono text-xs backdrop-blur-sm">Launch Live Deployment ↗</span>
+                <span class="px-2 py-0.5 rounded bg-[var(--brand)] text-white font-mono text-xs">LIVE</span>
+              </div>
+            </a>
+
+            <div class="flex items-center justify-between text-xs font-mono text-[var(--muted-foreground)] mb-2">
+              <span>MULTILINGUAL AI + GLOBAL GROWTH</span>
+              <span>LINGO.DEV ENGINE</span>
+            </div>
+            <h3 class="text-xl font-semibold tracking-[-0.02em]">
+              Generate structured AI notes and translate to <span class="font-instrument text-2xl brand-glow-text">any language.</span>
+            </h3>
+            <p class="text-xs sm:text-sm text-[var(--muted-foreground)] mt-2 leading-relaxed">
+              Precision architectural grid interface built for global scale—creating structured AI notes and localizing them across languages instantaneously.
+            </p>
+          </div>
+          <div class="mt-5 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-mono">
+            <a href="https://notes-io-frontend.vercel.app/" target="_blank" rel="noopener noreferrer" class="skeuo-btn px-3 py-1.5 rounded-lg font-medium inline-flex items-center gap-1.5">
+              <span>Visit Live Site</span>
+              <span class="text-[var(--brand)]">↗</span>
+            </a>
+            <button onclick="openBriefModal('Case Study: Note.io Multilingual Platform')" class="text-[var(--brand)] hover:underline cursor-pointer">Build similar →</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Case 05: Live Interactive Three.js Pixel Diorama (sloemo01/diorama) -->
+      <article data-category="video" class="work-card double-bezel md:col-span-2 flex flex-col">
+        <div class="h-8 px-3 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full dot-vermilion animate-pulse"></span>
+            <span class="font-medium">05 · Live Interactive 3D Pixel Diorama (sloemo01/diorama Engine)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="diorama-beat-badge" class="px-2 py-0.5 rounded bg-[var(--brand)]/10 text-[var(--brand)] font-mono text-[11px] font-semibold">BEAT 01 · CAST &amp; SETTLE</span>
+            <span class="hidden sm:inline font-mono text-xs text-emerald-600 dark:text-emerald-400 font-semibold">60FPS THREE.JS + BAYER DITHER</span>
+          </div>
+        </div>
+        <div class="double-bezel-inner p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <!-- Left: Live Three.js PixelPost Diorama Stage + Interactive Timeline & Beat Controls -->
+          <div class="lg:col-span-7 flex flex-col gap-3">
+            <div class="relative rounded-xl overflow-hidden border border-[var(--border)] bg-white shadow-inner">
+              <!-- Live WebGL Canvas -->
+              <canvas
+                id="work-diorama-canvas"
+                class="w-full h-72 sm:h-80 block"
+                title="Live Three.js Diorama — Locked fov:20.5 az:45 elev:33 + 64-color Bayer Dither"
+              ></canvas>
+
+              <!-- Optional Reference Still Overlay (Toggled by 'Compare Ref' button) -->
+              <img
+                id="work-diorama-ref-img"
+                src="./assets/diorama-work.png"
+                alt="Isometric 3D Winter Lake Diorama Reference"
+                class="hidden w-full h-72 sm:h-80 object-contain bg-white p-2"
+              />
+
+              <!-- Top-left Telemetry Pill -->
+              <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/90 backdrop-blur-sm border border-black/10 text-[11px] font-mono text-neutral-800 shadow-sm pointer-events-none">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#ea231a]"></span>
+                <span>CAM: 20.5° FOV · AZ 45° · EL 33°</span>
+              </div>
+
+              <!-- Top-right Shader & Reference Mode Toggles -->
+              <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5">
+                <button
+                  id="btn-diorama-shader"
+                  onclick="toggleWorkDioramaShader()"
+                  class="px-2.5 py-1 rounded-md bg-neutral-900 text-white text-[11px] font-mono hover:bg-[#ea231a] transition cursor-pointer shadow-sm"
+                >
+                  PixelPost: ON
+                </button>
+                <button
+                  id="btn-diorama-ref"
+                  onclick="toggleWorkDioramaRef()"
+                  class="px-2.5 py-1 rounded-md bg-white/90 text-neutral-800 border border-black/15 text-[11px] font-mono hover:border-black transition cursor-pointer shadow-sm"
+                >
+                  Compare Still
+                </button>
+              </div>
+            </div>
+
+            <!-- Interactive Motion Controls Bar (Play/Pause, 5 Story Beats, Timeline Scrubber) -->
+            <div class="rounded-xl border border-[var(--border)] bg-[var(--muted)]/50 p-2.5 flex flex-col gap-2">
+              <div class="flex flex-wrap items-center justify-between gap-1.5">
+                <div class="flex items-center gap-1">
+                  <button
+                    id="btn-diorama-play"
+                    onclick="toggleWorkDioramaPlay()"
+                    class="px-2.5 py-1 rounded-md text-xs font-mono font-semibold bg-[var(--brand)] text-white cursor-pointer transition"
+                  >
+                    ⏸ Pause
+                  </button>
+                  <button onclick="jumpWorkDioramaBeat(0.4)" class="diorama-beat-btn px-2 py-1 rounded text-[11px] font-mono border border-[var(--border)] bg-[var(--background)] hover:border-[var(--brand)] cursor-pointer transition">01 Cast</button>
+                  <button onclick="jumpWorkDioramaBeat(5.4)" class="diorama-beat-btn px-2 py-1 rounded text-[11px] font-mono border border-[var(--border)] bg-[var(--background)] hover:border-[var(--brand)] cursor-pointer transition">02 Bite</button>
+                  <button onclick="jumpWorkDioramaBeat(9.2)" class="diorama-beat-btn px-2 py-1 rounded text-[11px] font-mono border border-[var(--border)] bg-[var(--background)] hover:border-[var(--brand)] cursor-pointer transition">03 Trout Splash</button>
+                  <button onclick="jumpWorkDioramaBeat(13.6)" class="diorama-beat-btn px-2 py-1 rounded text-[11px] font-mono border border-[var(--border)] bg-[var(--background)] hover:border-[var(--brand)] cursor-pointer transition">04 Catch</button>
+                  <button onclick="jumpWorkDioramaBeat(17.6)" class="diorama-beat-btn px-2 py-1 rounded text-[11px] font-mono border border-[var(--border)] bg-[var(--background)] hover:border-[var(--brand)] cursor-pointer transition">05 Thermos Sip</button>
+                </div>
+                <span id="diorama-time-label" class="font-mono text-xs text-[var(--muted-foreground)]">t = 0.0s / 20.0s</span>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]">SCRUB TIMELINE</span>
+                <input
+                  id="work-diorama-scrubber"
+                  type="range"
+                  min="0"
+                  max="20"
+                  step="0.05"
+                  value="0"
+                  oninput="scrubWorkDiorama(this.value)"
+                  class="flex-1 accent-[#ea231a] cursor-pointer h-1.5"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Narrative & Technical Breakdown -->
+          <div class="lg:col-span-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-xs font-mono text-[var(--muted-foreground)] mb-2">
+                <span>SLOEMO01/DIORAMA PIPELINE</span>
+                <span>64-COLOR PALETTE SNAP</span>
+              </div>
+              <h3 class="text-2xl font-semibold tracking-[-0.02em] leading-snug">
+                Living miniature worlds &amp; <span class="font-instrument text-3xl brand-glow-text">deterministic</span> JS motion.
+              </h3>
+              <p class="text-xs sm:text-sm text-[var(--muted-foreground)] mt-2.5 leading-relaxed">
+                Built with the <strong class="text-[var(--foreground)]">sloemo01/diorama</strong> Three.js architecture: a locked three-quarter orthographic-feel lens (<code class="font-mono text-xs">20.5° FOV</code>), world-clipped snow slab, 8×8 edge-gated Bayer dithering quantized to 64 sRGB swatches, and a 20-second pure-function <code class="font-mono text-xs">applyStage(stage, t)</code> story loop.
+              </p>
+
+              <!-- 5-Beat Story Legend -->
+              <div class="mt-3.5 grid grid-cols-2 gap-1.5 text-[11px] font-mono text-[var(--muted-foreground)]">
+                <div class="p-2 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30">
+                  <span class="text-[var(--foreground)] font-semibold">Cast &amp; Bite:</span> Articulated cedar rod flex + bobber plunge &amp; water rings
+                </div>
+                <div class="p-2 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30">
+                  <span class="text-[var(--foreground)] font-semibold">Breach &amp; Sip:</span> Parabolic trout leap + 18-droplet splash &amp; steaming thermos
+                </div>
+              </div>
+
+              <!-- Direct Quick-Jump Links to All 4 Shipped Apps -->
+              <div class="mt-4 flex flex-wrap gap-1.5">
+                <a href="https://logoio.runable.site/" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-md text-xs font-mono border border-[var(--border)] bg-[var(--muted)]/60 hover:border-[var(--brand)] transition">01 · Logo.io ↗</a>
+                <a href="https://notes-peblo-frontend.vercel.app/" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-md text-xs font-mono border border-[var(--border)] bg-[var(--muted)]/60 hover:border-[var(--brand)] transition">02 · Peblo ↗</a>
+                <a href="https://memora-frontend-five.vercel.app/" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-md text-xs font-mono border border-[var(--border)] bg-[var(--muted)]/60 hover:border-[var(--brand)] transition">03 · Memora ↗</a>
+                <a href="https://notes-io-frontend.vercel.app/" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-md text-xs font-mono border border-[var(--border)] bg-[var(--muted)]/60 hover:border-[var(--brand)] transition">04 · Note.io ↗</a>
+              </div>
+            </div>
+
+            <div class="mt-5 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-mono">
+              <a href="./diorama.html" target="_blank" rel="noopener noreferrer" class="skeuo-btn px-3 py-1.5 rounded-lg font-medium inline-flex items-center gap-1.5">
+                <span>Fullscreen Diorama</span>
+                <span class="text-[var(--brand)]">↗</span>
+              </a>
+              <button onclick="openBriefModal('Custom 3D Diorama & Brand World')" class="text-[var(--brand)] hover:underline cursor-pointer">Commission a custom world →</button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       SECTION 3: INTERACTIVE 5-ENGINE ROI & COMPOUNDING SIMULATOR
+       ========================================================================= -->
+  <section id="roi" class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+    <div class="double-bezel">
+      <div class="h-9 px-4 flex items-center justify-between text-xs">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full dot-vermilion"></span>
+          <span class="font-mono font-medium">VESPER_GROWTH_SIMULATOR_V2.4</span>
+        </div>
+        <span class="font-mono text-xs text-[var(--muted-foreground)]">INTERACTIVE TELEMETRY</span>
+      </div>
+
+      <div class="double-bezel-inner p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- Left Controls -->
+        <div class="lg:col-span-7 space-y-5">
+          <div>
+            <span class="font-mono text-xs uppercase tracking-[0.16em] text-[var(--brand)]">COMPOUNDING ENGINE CALCULATOR</span>
+            <h3 class="text-2xl sm:text-3xl font-semibold tracking-[-0.03em] mt-1">
+              See what happens when all five engines run <span class="font-instrument text-3xl brand-glow-text">together.</span>
+            </h3>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex items-center justify-between text-xs font-mono">
+              <span>CURRENT MONTHLY VISITORS</span>
+              <span id="sim-visitors-label" class="font-semibold text-sm">25,000 / mo</span>
+            </div>
+            <input id="sim-visitors" type="range" min="5000" max="250000" step="5000" value="25000" oninput="recalculateROI()" class="w-full accent-[#ea231a] cursor-pointer" />
+          </div>
+
+          <!-- Toggleable Pillars -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+            <label class="flex items-center gap-2 p-2.5 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 text-xs font-medium cursor-pointer">
+              <input type="checkbox" checked onchange="recalculateROI()" class="sim-check accent-[#ea231a]" data-mult="1.65" data-hours="10" />
+              <span>01 Page Design</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 text-xs font-medium cursor-pointer">
+              <input type="checkbox" checked onchange="recalculateROI()" class="sim-check accent-[#ea231a]" data-mult="1.45" data-hours="18" />
+              <span>02 AI Video Ads</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 text-xs font-medium cursor-pointer">
+              <input type="checkbox" checked onchange="recalculateROI()" class="sim-check accent-[#ea231a]" data-mult="1.8" data-hours="14" />
+              <span>03 SEO + llms.txt</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 text-xs font-medium cursor-pointer">
+              <input type="checkbox" checked onchange="recalculateROI()" class="sim-check accent-[#ea231a]" data-mult="1.35" data-hours="32" />
+              <span>04 AI Automation</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 text-xs font-medium cursor-pointer">
+              <input type="checkbox" checked onchange="recalculateROI()" class="sim-check accent-[#ea231a]" data-mult="1.4" data-hours="12" />
+              <span>05 Growth Loops</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Right Output Box -->
+        <div class="lg:col-span-5 rounded-xl border border-[var(--border)] bg-[var(--muted)]/50 p-6 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between text-xs font-mono text-[var(--muted-foreground)]">
+            <span>PROJECTED 90-DAY IMPACT</span>
+            <span class="text-[var(--brand)]">● LIVE MODEL</span>
+          </div>
+
+          <div>
+            <div class="text-xs font-mono text-[var(--muted-foreground)]">PROJECTED QUALIFIED PIPELINE</div>
+            <div id="sim-pipeline-out" class="text-4xl sm:text-5xl font-semibold tracking-[-0.04em] mt-1">
+              +$1.42M
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-2 border-t border-[var(--border)] font-mono text-xs">
+            <div>
+              <div class="text-[var(--muted-foreground)]">ORGANIC REACH</div>
+              <div id="sim-traffic-out" class="text-base font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5">203,500/mo</div>
+            </div>
+            <div>
+              <div class="text-[var(--muted-foreground)]">TEAM HOURS SAVED</div>
+              <div id="sim-hours-out" class="text-base font-semibold text-[var(--brand)] mt-0.5">86 hrs/wk</div>
+            </div>
+          </div>
+
+          <button onclick="openBriefModal('Custom 5-Engine Growth Plan')" class="skeuo-btn-brand w-full h-10 rounded-lg text-xs font-mono uppercase tracking-[0.14em] font-semibold cursor-pointer">
+            Lock In This Architecture →
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       SECTION 4: TIERED PARTNER SLOTS & PRICING GRID
+       (Direct homage to evilbuttons.com's Mythic / Legendary / Founding Slot Grid)
+       ========================================================================= -->
+  <section id="slots" class="max-w-5xl mx-auto px-4 sm:px-6 py-20">
+    <div class="text-center max-w-xl mx-auto mb-12">
+      <div class="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)] mb-2">
+        <span>ENGAGEMENT TIERS &amp; Q4 PARTNER SLOTS</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-semibold tracking-[-0.03em] leading-[1.1]">
+        Partner with a studio that ships like a <span class="font-instrument text-[1.15em] brand-glow-text">co-founder.</span>
+      </h2>
+      <p class="text-sm text-[var(--muted-foreground)] mt-3">
+        We cap active retainers so every partner gets senior design, AI video synthesis, and custom growth engineering.
+      </p>
+    </div>
+
+    <div class="space-y-8">
+      <!-- TIER 01: FULL-STACK GROWTH PARTNER (Vermilion Dot · Direct Gmail Redirect) -->
+      <div>
+        <div class="flex items-center justify-between text-xs font-mono uppercase tracking-[0.16em] text-[var(--muted-foreground)] mb-2.5 px-1">
+          <span class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full dot-vermilion"></span>
+            <span>TIER 01 · FULL-STACK DESIGN, AI &amp; GROWTH PARTNER</span>
+          </span>
+          <span class="text-[var(--brand)]">1 OF 2 Q4 SLOTS REMAINING</span>
+        </div>
+
+        <div class="double-bezel">
+          <div class="double-bezel-inner p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div class="space-y-2 max-w-xl">
+              <div class="inline-flex items-center gap-2 text-xs font-mono px-2.5 py-0.5 rounded-full bg-[var(--brand)]/10 text-[var(--brand)]">
+                ALL 5 ENGINES INCLUDED · END-TO-END STUDIO PARTNER
+              </div>
+              <h3 class="text-2xl font-semibold tracking-[-0.02em]">
+                Flagship Embedded Partner <span class="font-instrument text-3xl brand-glow-text">(Full-Stack)</span>
+              </h3>
+              <p class="text-xs sm:text-sm text-[var(--muted-foreground)] leading-relaxed">
+                Dedicated Landing Pages &amp; Full-Stack Design Systems + Weekly 4K AI Launch Videos + Programmatic SEO &amp; <code class="font-mono">/llms.txt</code> + Autonomous Outbound Workflows + Continuous CRO.
+              </p>
+            </div>
+            <div class="flex flex-col items-start md:items-end gap-2 shrink-0 w-full md:w-auto">
+              <div class="font-mono text-lg sm:text-xl font-semibold text-[var(--foreground)]">Custom Full-Stack Scope</div>
+              <span class="text-xs font-mono text-[var(--muted-foreground)]">Direct inbox response &lt; 2 hours · laatharv@gmail.com</span>
+              <a
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=laatharv%40gmail.com&su=%5BVesper%20Studio%5D%20Full-Stack%20Growth%20Partner%20Inquiry&body=Hi%20Atharv%2C%0A%0AWe'd%20love%20to%20work%20with%20Vesper%20Studio%20on%20the%20Full-Stack%20Growth%20Partner%20plan%20(Page%20Design%2C%20AI%20Video%2C%20SEO%20%2B%20llms.txt%2C%20AI%20Automation%20%26%20Growth).%0A%0AOur%20website%20%2F%20product%3A%20%0ATimeline%20%26%20goals%3A%20"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="skeuo-btn-brand px-5 h-10 rounded-lg text-xs font-medium mt-1 w-full md:w-auto inline-flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>✉ Connect on Gmail for Full-Stack</span>
+                <span class="font-mono text-[11px] px-1.5 py-0.5 rounded bg-black/25">↗</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIER 02: FREE LANDING PAGES & UI/UX DESIGN PROJECTS (STARTS FROM ₹1,000 INR) -->
+      <div>
+        <div class="flex items-center justify-between text-xs font-mono uppercase tracking-[0.16em] text-[var(--muted-foreground)] mb-2.5 px-1">
+          <span class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full dot-amber"></span>
+            <span>TIER 02 · LANDING PAGES &amp; UI/UX DESIGN PROJECTS</span>
+          </span>
+          <span class="text-emerald-600 dark:text-emerald-400 font-semibold">FREE LANDING PAGES · UI/UX FROM ₹1K INR</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Card 1: Free Landing Pages -->
+          <div class="double-bezel">
+            <div class="double-bezel-inner p-6 h-full flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between font-mono text-xs mb-2">
+                  <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">FOUNDER LAUNCH OFFER</span>
+                  <span class="text-xl sm:text-2xl font-semibold text-emerald-600 dark:text-emerald-400">FREE <span class="text-xs font-normal text-[var(--muted-foreground)]">(₹0)</span></span>
+                </div>
+                <h4 class="text-xl font-semibold tracking-[-0.02em]">
+                  Free High-Converting <span class="font-instrument text-2xl brand-glow-text">Landing Pages</span>
+                </h4>
+                <p class="text-xs sm:text-sm text-[var(--muted-foreground)] mt-2 leading-relaxed">
+                  Get a bespoke, conversion-engineered landing page crafted in Inter + Instrument Serif at zero cost—built to prove our design velocity and help founders ship fast.
+                </p>
+              </div>
+              <div class="mt-5 pt-3 border-t border-[var(--border)] flex items-center gap-2">
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=laatharv%40gmail.com&su=%5BVesper%20Studio%5D%20Claim%20Free%20Landing%20Page%20(Founder%20Offer)&body=Hi%20Atharv%2C%0A%0AI'd%20love%20to%20claim%20a%20Free%20Landing%20Page%20for%20my%20project%20%2F%20startup.%0A%0AProject%20name%20%26%20details%3A%20%0AReference%20or%20goal%3A%20"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="skeuo-btn-brand flex-1 h-9 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span>Claim Free Landing Page ↗</span>
+                </a>
+                <button onclick="openBriefModal('Free Landing Page (₹0 Founder Offer)')" class="skeuo-btn px-3 h-9 rounded-lg text-xs font-mono cursor-pointer">
+                  Brief
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: UI/UX Design Project Starts from ₹1,000 INR -->
+          <div class="double-bezel">
+            <div class="double-bezel-inner p-6 h-full flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between font-mono text-xs mb-2">
+                  <span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold">BESPOKE UI/UX STUDIO</span>
+                  <span class="text-xl sm:text-2xl font-semibold text-[var(--foreground)]"><span class="text-xs font-normal text-[var(--muted-foreground)]">Starts from</span> ₹1,000 INR</span>
+                </div>
+                <h4 class="text-xl font-semibold tracking-[-0.02em]">
+                  UI/UX Design Projects &amp; <span class="font-instrument text-2xl brand-glow-text">Product Systems</span>
+                </h4>
+                <p class="text-xs sm:text-sm text-[var(--muted-foreground)] mt-2 leading-relaxed">
+                  Complete UI/UX product design, interactive Figma &amp; web interfaces, custom 3D isometric worlds, and SaaS dashboards starting from just <strong>₹1k INR</strong>.
+                </p>
+              </div>
+              <div class="mt-5 pt-3 border-t border-[var(--border)] flex items-center gap-2">
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=laatharv%40gmail.com&su=%5BVesper%20Studio%5D%20UI%2FUX%20Design%20Project%20(Starts%20from%201k%20INR)&body=Hi%20Atharv%2C%0A%0AI'd%20love%20to%20start%20a%20UI%2FUX%20Design%20Project%20with%20Vesper%20Studio%20(starting%20from%201k%20INR).%0A%0AProject%20scope%20%2F%20screens%20needed%3A%20%0ATimeline%3A%20"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="skeuo-btn flex-1 h-9 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span>Start UI/UX Project (₹1k+ INR) ↗</span>
+                </a>
+                <button onclick="openBriefModal('UI/UX Design Project (Starts from ₹1,000 INR)')" class="skeuo-btn px-3 h-9 rounded-lg text-xs font-mono cursor-pointer">
+                  Brief
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIER 03: MODULAR STANDALONE ENGINES (Cobalt Dot · 3 Third-Width Slots) -->
+      <div>
+        <div class="flex items-center justify-between text-xs font-mono uppercase tracking-[0.16em] text-[var(--muted-foreground)] mb-2.5 px-1">
+          <span class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full dot-cobalt"></span>
+            <span>TIER 03 · DEDICATED MODULAR ENGINES</span>
+          </span>
+          <span>PLUG INTO YOUR TEAM</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="double-bezel">
+            <div class="double-bezel-inner p-5 h-full flex flex-col justify-between">
+              <div>
+                <div class="font-mono text-xs text-blue-500 mb-1">ENGINE MODULE 01</div>
+                <h4 class="font-semibold text-base">Programmatic SEO + llms.txt</h4>
+                <p class="text-xs text-[var(--muted-foreground)] mt-1.5">
+                  High-intent comparison pages, automated schema, and AI citation indexing for ChatGPT &amp; Perplexity.
+                </p>
+              </div>
+              <div class="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between font-mono text-xs">
+                <span class="font-semibold">Custom Scope</span>
+                <button onclick="openBriefModal('Modular Engine: Programmatic SEO + llms.txt')" class="text-[var(--brand)] hover:underline cursor-pointer">Select →</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="double-bezel">
+            <div class="double-bezel-inner p-5 h-full flex flex-col justify-between">
+              <div>
+                <div class="font-mono text-xs text-blue-500 mb-1">ENGINE MODULE 02</div>
+                <h4 class="font-semibold text-base">AI Video Ad &amp; Reel Factory</h4>
+                <p class="text-xs text-[var(--muted-foreground)] mt-1.5">
+                  Custom 4K AI product launch reels, interactive 3D dioramas &amp; paid social creatives.
+                </p>
+              </div>
+              <div class="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between font-mono text-xs">
+                <span class="font-semibold">Custom Scope</span>
+                <button onclick="openBriefModal('Modular Engine: AI Video Ad Factory')" class="text-[var(--brand)] hover:underline cursor-pointer">Select →</button>
+              </div>
+            </div>
+          </div>
+
+          <a
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=laatharv%40gmail.com&su=%5BVesper%20Studio%5D%20Custom%20AI%20Automation%20%26%20Growth%20Stack&body=Hi%20Atharv%2C%0A%0AI'd%20love%20to%20configure%20a%20custom%20AI%20Automation%20%26%20Growth%20stack.%0A%0AOur%20website%20%2F%20product%3A%20"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="rounded-xl border border-dashed border-[var(--border)] bg-[var(--foreground)]/[0.015] hover:bg-[var(--foreground)]/[0.04] hover:border-[var(--brand)] transition p-5 flex flex-col items-center justify-center text-center min-h-[10rem] group cursor-pointer"
+          >
+            <span class="font-mono text-xs uppercase tracking-[0.14em] text-[var(--muted-foreground)]">MODULE 03 · CUSTOM</span>
+            <span class="font-medium text-sm mt-1 group-hover:text-[var(--brand)] transition">AI Workflow &amp; Outbound Agent (+)</span>
+            <span class="font-mono text-xs text-[var(--muted-foreground)] mt-1">Ask on Gmail →</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       SECTION 4.5: INTERACTIVE ONE-CLICK GMAIL DISPATCH CONSOLE (laatharv@gmail.com)
+       (Placed directly above the framed monumental footer)
+       ========================================================================= -->
+  <section id="gmail-dispatch" class="max-w-5xl mx-auto px-4 sm:px-6 pb-16 pt-2">
+    <div class="double-bezel">
+      <!-- Window Header Bar -->
+      <div class="h-9 px-4 flex items-center justify-between text-xs">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full dot-vermilion animate-pulse"></span>
+          <span class="font-mono font-medium">DIRECT_GMAIL_DISPATCH.sh — laatharv@gmail.com</span>
+        </div>
+        <span class="font-mono text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+          ● AVG REPLY &lt; 2 HOURS
+        </span>
+      </div>
+
+      <!-- Inner Interactive Stage -->
+      <div class="double-bezel-inner p-6 sm:p-8 relative overflow-hidden landing-bg">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center relative z-10">
+          <!-- Left: Editorial Copy + Interactive Topic Pre-Fill Pills -->
+          <div class="lg:col-span-7 space-y-4">
+            <div class="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md px-3 py-1 text-xs font-mono">
+              <span class="text-[var(--brand)] font-semibold">ONE-CLICK INBOX LAUNCH</span>
+              <span>·</span>
+              <span>NO FORMS, NO FRICTION</span>
+            </div>
+
+            <h2 class="text-2xl sm:text-4xl font-semibold tracking-[-0.03em] leading-[1.08]">
+              Skip the queue. Drop a note straight into <span class="font-instrument text-[1.15em] brand-glow-text">Atharv’s</span> Gmail inbox.
+            </h2>
+
+            <p class="text-xs sm:text-sm text-[var(--muted-foreground)] leading-relaxed max-w-xl">
+              Pick your focus below (or click launch right away) to open a pre-structured Gmail thread directly to <strong class="font-mono text-[var(--foreground)]">laatharv@gmail.com</strong>.
+            </p>
+
+            <!-- Interactive Scope Pill Selector (pre-fills Gmail subject & body) -->
+            <div class="space-y-1.5 pt-1">
+              <span class="block font-mono text-xs uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+                1. OPTIONAL: TAP TO PRE-LOAD YOUR SUBJECT LINE
+              </span>
+              <div class="flex flex-wrap gap-1.5" id="gmail-topic-pills">
+                <button
+                  onclick="selectGmailTopic(this, 'Full-Stack Growth Partner (All 5 Engines)')"
+                  class="gmail-topic-pill px-2.5 py-1 rounded-md text-xs font-mono border border-[var(--brand)] bg-[var(--brand)]/10 text-[var(--brand)] font-semibold transition cursor-pointer"
+                >
+                  ★ Full-Stack Partner
+                </button>
+                <button
+                  onclick="selectGmailTopic(this, 'Claim Free Landing Page (₹0 Founder Offer)')"
+                  class="gmail-topic-pill px-2.5 py-1 rounded-md text-xs font-mono border border-[var(--border)] bg-[var(--background)]/80 hover:border-[var(--foreground)] transition cursor-pointer"
+                >
+                  🎁 Free Landing Page
+                </button>
+                <button
+                  onclick="selectGmailTopic(this, 'UI/UX Design Project (Starts from ₹1,000 INR)')"
+                  class="gmail-topic-pill px-2.5 py-1 rounded-md text-xs font-mono border border-[var(--border)] bg-[var(--background)]/80 hover:border-[var(--foreground)] transition cursor-pointer"
+                >
+                  ✦ UI/UX Design (From ₹1k INR)
+                </button>
+                <button
+                  onclick="selectGmailTopic(this, '4K AI Launch Video & Motion Reels')"
+                  class="gmail-topic-pill px-2.5 py-1 rounded-md text-xs font-mono border border-[var(--border)] bg-[var(--background)]/80 hover:border-[var(--foreground)] transition cursor-pointer"
+                >
+                  02 AI Video Gen
+                </button>
+                <button
+                  onclick="selectGmailTopic(this, 'Programmatic SEO + /llms.txt Citations')"
+                  class="gmail-topic-pill px-2.5 py-1 rounded-md text-xs font-mono border border-[var(--border)] bg-[var(--background)]/80 hover:border-[var(--foreground)] transition cursor-pointer"
+                >
+                  03 SEO &amp; llms.txt
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Tactile One-Click Gmail Dispatch Card -->
+          <div class="lg:col-span-5 rounded-xl border border-[var(--border)] bg-[var(--background)]/90 backdrop-blur-md p-5 shadow-lg space-y-4">
+            <div class="space-y-1.5 font-mono text-xs border-b border-[var(--border)] pb-3">
+              <div class="flex items-center justify-between">
+                <span class="text-[var(--muted-foreground)]">TO:</span>
+                <span class="font-semibold text-[var(--foreground)]">laatharv@gmail.com</span>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[var(--muted-foreground)] shrink-0">SUBJECT:</span>
+                <span id="gmail-subject-preview" class="text-[var(--brand)] truncate font-medium">
+                  [Vesper Studio] Full-Stack Growth Partner (All 5 Engines)
+                </span>
+              </div>
+            </div>
+
+            <!-- Primary One-Click Gmail Compose Redirect Button -->
+            <a
+              id="gmail-direct-link"
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=laatharv%40gmail.com&su=%5BVesper%20Studio%5D%20Full-Stack%20Growth%20Partner%20(All%205%20Engines)&body=Hi%20Atharv%2C%0A%0AWe'd%20love%20to%20explore%20working%20together%20on%20Full-Stack%20Growth%20Partner%20(All%205%20Engines).%0A%0AOur%20website%20%2F%20product%3A%20%0ATimeline%20%26%20goals%3A%20"
+              target="_blank"
+              rel="noopener noreferrer"
+              onclick="showToast('Opening Gmail compose to laatharv@gmail.com ↗')"
+              class="skeuo-btn-brand w-full h-12 rounded-lg px-4 text-xs sm:text-sm font-medium flex items-center justify-between group cursor-pointer"
+            >
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4.2-8 5-8-5V6l8 5 8-5v2.2z"/>
+                </svg>
+                <span>Open in Gmail Inbox (1-Click)</span>
+              </span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded bg-black/25 border border-white/20 group-hover:translate-x-0.5 transition">
+                ↗ GMAIL
+              </span>
+            </a>
+
+            <!-- Secondary Quick Actions: Copy Email + Default Mail Client -->
+            <div class="grid grid-cols-2 gap-2 pt-0.5">
+              <button
+                onclick="copyDirectEmail()"
+                class="h-9 rounded-lg border border-[var(--border)] bg-[var(--muted)]/50 hover:bg-[var(--muted)] text-xs font-mono flex items-center justify-center gap-1.5 transition cursor-pointer"
+              >
+                <span id="copy-email-label">📋 Copy Email</span>
+              </button>
+              <a
+                id="mailto-fallback-link"
+                href="mailto:laatharv@gmail.com?subject=%5BVesper%20Studio%5D%20Full-Stack%20Growth%20Partner%20(All%205%20Engines)"
+                class="h-9 rounded-lg border border-[var(--border)] bg-[var(--muted)]/50 hover:bg-[var(--muted)] text-xs font-mono flex items-center justify-center gap-1.5 transition"
+              >
+                <span>✉ Mail App</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       SECTION 5: FRAMED MONUMENTAL FOOTER
+       (Mirrors evilbuttons.com m-1.5 min-h-[36rem] rounded-3xl border .landing-bg)
+       ========================================================================= -->
+  <footer class="m-1.5 sm:m-2 min-h-[32rem] sm:min-h-[38rem] rounded-2xl sm:rounded-3xl border border-[var(--border)] overflow-hidden relative isolate landing-bg flex flex-col justify-between p-6 sm:p-10">
+    <!-- Top Callout Row inside Framed Footer -->
+    <div class="max-w-6xl mx-auto w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 z-10">
+      <div>
+        <span class="font-mono text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">READY FOR AN UNFAIR ADVANTAGE?</span>
+        <p class="text-xl sm:text-2xl font-semibold tracking-[-0.02em] mt-1">
+          Let’s build your next page, AI reel, and <span class="font-instrument text-3xl brand-glow-text">growth engine.</span>
+        </p>
+      </div>
+      <button
+        onclick="openBriefModal('Footer Discovery Call')"
+        class="skeuo-btn px-5 h-11 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-2 cursor-pointer"
+      >
+        <span>Book a 15-min Architecture Call</span>
+        <span class="text-[#ff4324]">↗</span>
+      </button>
+    </div>
+
+    <!-- Monumental 20vw Stacked Wordmark (Instrument Serif Italic + Inter Semibold) -->
+    <div class="my-auto py-6 text-center select-none z-10">
+      <div class="leading-[0.84] tracking-[-0.05em] text-[clamp(3.8rem,17vw,11rem)]">
+        <span class="font-instrument block brand-glow-text">Vesper</span>
+        <span class="font-semibold block text-[var(--foreground)]">STUDIO</span>
+      </div>
+    </div>
+
+    <!-- Bottom Metadata & Two-Tone Badge Row (evilbuttons.com signature) -->
+    <div class="max-w-6xl mx-auto w-full pt-4 border-t border-[var(--border)]/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-[var(--muted-foreground)] z-10">
+      <div class="flex items-center gap-2">
+        <span>© 2026 VESPER STUDIO INC.</span>
+        <span>·</span>
+        <span>INTER + INSTRUMENT SERIF</span>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <a href="#stage" class="hover:text-[var(--foreground)] transition">Stage</a>
+        <a href="#work" class="hover:text-[var(--foreground)] transition">Work</a>
+        <a href="#slots" class="hover:text-[var(--foreground)] transition">Pricing</a>
+        <button onclick="openLlmsModal()" class="hover:text-[var(--brand)] transition underline">llms.txt</button>
+      </div>
+
+      <!-- Two-Tone High-Contrast Badge -->
+      <div class="inline-flex items-center rounded overflow-hidden border border-[var(--foreground)] text-xs font-mono">
+        <span class="px-2 py-0.5 bg-[var(--foreground)] text-[var(--background)] font-semibold">Q4 COHORT</span>
+        <span class="px-2 py-0.5 bg-[var(--background)] text-[var(--foreground)] font-semibold">2 SLOTS OPEN</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =========================================================================
+       MODAL 1: INTERACTIVE PROJECT BRIEF & SLOT RESERVATION DRAWER
+       ========================================================================= -->
+  <div id="brief-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="double-bezel w-full max-w-lg">
+      <div class="h-9 px-3 flex items-center justify-between text-xs">
+        <span class="font-mono font-semibold" id="modal-tier-title">INITIATE_PROJECT_BRIEF.sh</span>
+        <button onclick="closeBriefModal()" class="font-mono text-xs px-2 py-0.5 rounded hover:bg-[var(--muted)]">ESC ✕</button>
+      </div>
+      <div class="double-bezel-inner p-6 space-y-4">
+        <div>
+          <h3 class="text-xl font-semibold tracking-[-0.02em]">
+            Configure your <span class="font-instrument text-2xl brand-glow-text">growth</span> stack
+          </h3>
+          <p class="text-xs text-[var(--muted-foreground)] mt-1">
+            Select the engines you want us to deploy and copy or send your brief directly.
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-xs font-mono uppercase text-[var(--muted-foreground)]">Your Startup / URL</label>
+          <input id="brief-url" type="text" placeholder="https://acme.ai" class="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 text-xs font-mono" />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-xs font-mono uppercase text-[var(--muted-foreground)]">Engines Requested</label>
+          <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+            <label class="flex items-center gap-2 p-2 rounded border border-[var(--border)]"><input type="checkbox" checked class="brief-engine accent-[#ea231a]" value="Page Design" /> Page Design</label>
+            <label class="flex items-center gap-2 p-2 rounded border border-[var(--border)]"><input type="checkbox" checked class="brief-engine accent-[#ea231a]" value="AI Video Gen" /> AI Video Gen</label>
+            <label class="flex items-center gap-2 p-2 rounded border border-[var(--border)]"><input type="checkbox" checked class="brief-engine accent-[#ea231a]" value="SEO + llms.txt" /> SEO + llms.txt</label>
+            <label class="flex items-center gap-2 p-2 rounded border border-[var(--border)]"><input type="checkbox" class="brief-engine accent-[#ea231a]" value="AI Automation" /> AI Automation</label>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 pt-2">
+          <button onclick="submitProjectBrief()" class="skeuo-btn-brand flex-1 h-10 rounded-lg text-xs font-medium cursor-pointer">
+            Copy &amp; Dispatch Brief →
+          </button>
+          <button onclick="closeBriefModal()" class="h-10 px-4 rounded-lg border border-[var(--border)] text-xs font-mono">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 2: LIVE /LLMS.TXT AI CITATION SCHEMA INSPECTOR
+       ========================================================================= -->
+  <div id="llms-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="double-bezel w-full max-w-lg">
+      <div class="h-9 px-3 flex items-center justify-between text-xs">
+        <span class="font-mono font-semibold">/llms.txt — AI Agent Discovery Index</span>
+        <button onclick="closeLlmsModal()" class="font-mono text-xs px-2 py-0.5 rounded hover:bg-[var(--muted)]">ESC ✕</button>
+      </div>
+      <div class="double-bezel-inner p-5 space-y-3">
+        <pre class="text-xs font-mono p-3.5 rounded-lg bg-[var(--muted)] overflow-x-auto leading-relaxed text-[var(--foreground)]"># Vesper Studio — AI-Native Design & Growth Systems
+> Category-defining Page Design, Programmatic SEO, AI Video Synthesis, and Autonomous Outbound Growth.
+
+## Core Capabilities
+- **01 Page Design**: High-converting Inter + Instrument Serif interfaces (+3.8x CVR).
+- **02 AI Video Generation**: 4K 60fps product launch reels & kinetic ad variations.
+- **03 Programmatic SEO & llms.txt**: Structured citation architecture for ChatGPT, Perplexity & Google.
+- **04 AI Automation**: Zero-touch Clay + LLM + custom video outbound pipelines.
+- **05 Growth Loops**: Viral K-factor engineering & continuous CRO sprints.</pre>
+        <div class="flex justify-end">
+          <button onclick="copyEngineBrief(event, 'llms.txt template'); closeLlmsModal();" class="skeuo-btn px-4 h-9 rounded-lg text-xs font-mono">
+            Copy /llms.txt Template
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-300 rounded-full border border-[var(--border)] bg-[var(--foreground)] text-[var(--background)] px-4 py-2 text-xs font-mono shadow-lg">
+    Copied to clipboard ✓
+  </div>
+
+  <!-- =========================================================================
+       INTERACTIVE CONTROLLER SCRIPT (3D Coverflow, Canvas Synth, Telemetry)
+       ========================================================================= -->
+  <script>
+    let activeIndex = 0;
+    const totalCards = 5;
+    const testedEngines = new Set([0]);
+    const stageNames = [
+      '01 / Conversion Page Design',
+      '02 / AI Video Synthesis',
+      '03 / Programmatic SEO & llms.txt',
+      '04 / Autonomous AI Workflows',
+      '05 / Compounding Growth Loops'
+    ];
+
+    function markEngineTested(idx) {
+      testedEngines.add(idx);
+      const pillText = document.getElementById('engines-tested-text');
+      if (pillText) {
+        pillText.textContent = `${testedEngines.size}/5 Engines Tested`;
+      }
+    }
+
+    /* 1. 3D Coverflow Carousel Transform Engine + Auto-Orbit Loop */
+    let autoOrbitEnabled = true;
+    let hoverPaused = false;
+    let orbitElapsed = 0;
+    const ORBIT_DURATION = 3800; // 3.8 seconds per card
+    let lastOrbitTimestamp = performance.now();
+
+    function renderCoverflow() {
+      const cards = document.querySelectorAll('.coverflow-card');
+      cards.forEach((card, idx) => {
+        let offset = idx - activeIndex;
+        if (offset > 2) offset -= totalCards;
+        if (offset < -2) offset += totalCards;
+
+        card.classList.toggle('coverflow-card-active', offset === 0);
+
+        if (offset === 0) {
+          card.style.zIndex = '10';
+          card.style.transform = 'translate3d(0%, 0, 0px) scale(1) rotateY(0deg)';
+          card.style.opacity = '1';
+          card.style.filter = 'blur(0px)';
+        } else if (Math.abs(offset) === 1) {
+          const sign = offset > 0 ? 1 : -1;
+          card.style.zIndex = '9';
+          card.style.transform = `translate3d(${sign * 86}%, 0, -140px) rotateY(${-sign * 34}deg)`;
+          card.style.opacity = '0.9';
+          card.style.filter = 'blur(0px)';
+        } else {
+          const sign = offset > 0 ? 1 : -1;
+          card.style.zIndex = '8';
+          card.style.transform = `translate3d(${sign * 145}%, 0, -300px) scale(0.86) rotateY(${-sign * 46}deg)`;
+          card.style.opacity = '0.55';
+          card.style.filter = 'blur(1.5px)';
+        }
+      });
+
+      // Update Tab Pills
+      document.querySelectorAll('.carousel-tab').forEach((tab) => {
+        const tabIdx = Number(tab.getAttribute('data-tab'));
+        if (tabIdx === activeIndex) {
+          tab.className = 'carousel-tab px-2.5 py-1 rounded-md text-xs font-mono uppercase tracking-[0.12em] transition border border-[var(--brand)] bg-[var(--brand)]/10 text-[var(--brand)] font-semibold';
+        } else {
+          tab.className = 'carousel-tab px-2.5 py-1 rounded-md text-xs font-mono uppercase tracking-[0.12em] transition border border-[var(--border)] bg-[var(--background)]/70 text-[var(--muted-foreground)] hover:text-[var(--foreground)]';
+        }
+      });
+
+      const activeLabel = document.getElementById('active-stage-name');
+      if (activeLabel) activeLabel.textContent = stageNames[activeIndex];
+      markEngineTested(activeIndex);
+    }
+
+    function setCarouselIndex(idx) {
+      activeIndex = (idx + totalCards) % totalCards;
+      orbitElapsed = 0;
+      const bar = document.getElementById('orbit-progress-bar');
+      if (bar) bar.style.width = '0%';
+      renderCoverflow();
+    }
+
+    function cycleCarousel(delta) {
+      setCarouselIndex(activeIndex + delta);
+    }
+
+    function handleCardClick(idx, event) {
+      if (idx !== activeIndex) {
+        event.stopPropagation();
+        setCarouselIndex(idx);
+      }
+    }
+
+    function setHoverPause(paused) {
+      hoverPaused = paused;
+      updateAutoOrbitUI();
+    }
+
+    function toggleAutoOrbit() {
+      autoOrbitEnabled = !autoOrbitEnabled;
+      orbitElapsed = 0;
+      updateAutoOrbitUI();
+    }
+
+    function updateAutoOrbitUI() {
+      const dot = document.getElementById('auto-orbit-dot');
+      const label = document.getElementById('auto-orbit-label');
+      if (!dot || !label) return;
+
+      if (!autoOrbitEnabled) {
+        dot.className = 'w-1.5 h-1.5 rounded-full bg-neutral-400';
+        label.textContent = 'AUTO-ORBIT: OFF';
+      } else if (hoverPaused) {
+        dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500';
+        label.textContent = 'ORBIT: PAUSED (HOVER)';
+      } else {
+        dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse';
+        label.textContent = 'AUTO-ORBIT: ON';
+      }
+    }
+
+    function tickAutoOrbit(now) {
+      const dt = now - lastOrbitTimestamp;
+      lastOrbitTimestamp = now;
+
+      if (autoOrbitEnabled && !hoverPaused) {
+        orbitElapsed += dt;
+        const pct = Math.min(100, (orbitElapsed / ORBIT_DURATION) * 100);
+        const bar = document.getElementById('orbit-progress-bar');
+        if (bar) bar.style.width = `${pct}%`;
+
+        if (orbitElapsed >= ORBIT_DURATION) {
+          orbitElapsed = 0;
+          cycleCarousel(1);
+        }
+      }
+      requestAnimationFrame(tickAutoOrbit);
+    }
+    requestAnimationFrame(tickAutoOrbit);
+
+    // Keyboard Left/Right navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') cycleCarousel(1);
+      if (e.key === 'ArrowLeft') cycleCarousel(-1);
+      if (e.key === 'Escape') {
+        closeBriefModal();
+        closeLlmsModal();
+      }
+    });
+
+    /* 2. Card 01: Page Design Interactive Craft Toggle */
+    let highCraftMode = true;
+    let abPassCount = 1;
+    function toggleDesignMode(e) {
+      e.stopPropagation();
+      highCraftMode = !highCraftMode;
+      const label = document.getElementById('design-mode-label');
+      const headline = document.getElementById('design-preview-headline');
+      const cvr = document.getElementById('design-cvr-readout');
+      const liftBadge = document.getElementById('design-lift-badge');
+
+      if (highCraftMode) {
+        label.textContent = 'High-Craft Editorial';
+        headline.innerHTML = 'Turn passive traffic into <span class="font-instrument text-2xl brand-glow-text">obsessive</span> buyers.';
+        cvr.textContent = 'CVR: 5.42% ▲';
+        liftBadge.textContent = '+3.8x CVR Lift';
+      } else {
+        label.textContent = 'Generic SaaS Wireframe';
+        headline.innerHTML = 'Welcome to our platform. Sign up for a free trial today.';
+        cvr.textContent = 'CVR: 1.41% ▼';
+        liftBadge.textContent = 'Baseline 1.0x';
+      }
+      markEngineTested(0);
+    }
+
+    function triggerDesignExperiment(e) {
+      e.stopPropagation();
+      abPassCount++;
+      const cvrVal = (5.42 + (abPassCount % 4) * 0.37).toFixed(2);
+      document.getElementById('design-cvr-readout').textContent = `CVR: ${cvrVal}% ▲`;
+      document.getElementById('design-ab-status').textContent = `Variant #${abPassCount} · 99.8% winner`;
+      showToast(`Variant #${abPassCount} deployed — CVR jumped to ${cvrVal}%`);
+      markEngineTested(0);
+    }
+
+    /* 3. Card 02: AI Video Generation Procedural Canvas & Scene Switcher */
+    let currentScene = 0;
+    let videoBoost = 1;
+    const prompts = [
+      'PROMPT: "Tactile hardware launch, vermilion rim light"',
+      'PROMPT: "Instrument Serif kinetic typography, 60fps"',
+      'PROMPT: "3D obsidian glass monolith orbit, volumetric glow"'
+    ];
+
+    function setVideoScene(e, sceneIdx) {
+      e.stopPropagation();
+      currentScene = sceneIdx;
+      document.getElementById('video-prompt-tag').textContent = prompts[sceneIdx];
+      [0, 1, 2].forEach((i) => {
+        const btn = document.getElementById(`scene-btn-${i}`);
+        if (i === sceneIdx) {
+          btn.className = 'px-2 py-0.5 rounded text-xs font-mono border border-[var(--brand)] bg-[var(--brand)]/10 text-[var(--brand)]';
+        } else {
+          btn.className = 'px-2 py-0.5 rounded text-xs font-mono border border-[var(--border)]';
+        }
+      });
+      markEngineTested(1);
+    }
+
+    function synthesizeVideoFrame(e) {
+      e.stopPropagation();
+      videoBoost = 2.6;
+      setTimeout(() => { videoBoost = 1; }, 1200);
+      const ctr = (4.9 + Math.random() * 1.4).toFixed(1);
+      document.getElementById('video-roas-metric').textContent = `Ad CTR: ${ctr}% (+290%)`;
+      showToast('Synthesized new 4K 60fps launch cut ✓');
+      markEngineTested(1);
+    }
+
+    // Animate AI Video Canvas
+    const canvas = document.getElementById('ai-video-canvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    let frame = 0;
+    function animateVideoCanvas() {
+      if (ctx) {
+        frame += 0.045 * videoBoost;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const bars = 28;
+        for (let i = 0; i < bars; i++) {
+          const x = (i / bars) * canvas.width;
+          const wave = Math.sin(frame + i * (0.35 + currentScene * 0.15)) * 0.5 + 0.5;
+          const h = 16 + wave * 85;
+          const y = (canvas.height - h) / 2;
+          ctx.fillStyle = i % 3 === 0 ? 'rgba(255, 67, 36, 0.72)' : 'rgba(255, 255, 255, 0.18)';
+          ctx.fillRect(x + 4, y, 8, h);
+        }
+
+        const sec = String(Math.floor((frame * 2) % 60)).padStart(2, '0');
+        const frm = String(Math.floor((frame * 30) % 60)).padStart(2, '0');
+        const tc = document.getElementById('video-timecode');
+        if (tc) tc.textContent = `00:0${currentScene + 1}:${sec}:${frm}`;
+      }
+      requestAnimationFrame(animateVideoCanvas);
+    }
+    animateVideoCanvas();
+
+    /* 4. Card 03: Programmatic SEO & llms.txt Surge */
+    let seoClusterCount = 250;
+    function deployProgrammaticSEO(e) {
+      e.stopPropagation();
+      seoClusterCount += 250;
+      const visits = (148900 + seoClusterCount * 190).toLocaleString();
+      document.getElementById('seo-traffic-counter').textContent = `${visits} visits/mo`;
+      document.getElementById('seo-bar-1').style.width = '98%';
+      document.getElementById('seo-bar-2').style.width = '96%';
+      document.getElementById('seo-bar-2-val').textContent = `+${410 + Math.floor(seoClusterCount / 5)}% Mentions`;
+      showToast(`Indexed ${seoClusterCount} programmatic pages + updated /llms.txt`);
+      markEngineTested(2);
+    }
+
+    /* 5. Card 04: Autonomous Ops Pipeline Trigger */
+    function fireAutomationPulse(e) {
+      e.stopPropagation();
+      const n1 = document.getElementById('node-1');
+      const n2 = document.getElementById('node-2');
+      const n3 = document.getElementById('node-3');
+      const log = document.getElementById('auto-run-log');
+
+      log.textContent = 'Enriching domain + rendering custom AI audit...';
+      n1.style.borderColor = 'var(--brand)';
+      setTimeout(() => {
+        n2.style.transform = 'scale(1.04)';
+        log.textContent = 'Synthesizing personalized 45s Loom alternative...';
+      }, 280);
+      setTimeout(() => {
+        n2.style.transform = 'scale(1)';
+        n3.style.borderColor = '#10b981';
+        log.textContent = '✓ Enterprise demo booked via autonomous sequence';
+        showToast('Autonomous workflow executed in 162ms ✓');
+      }, 650);
+      markEngineTested(3);
+    }
+
+    /* 6. Card 05: Compounding Growth Slider */
+    function updateGrowthLoop(val) {
+      const v = Number(val);
+      document.getElementById('growth-velocity-label').textContent = `${v} Ships / Week`;
+      const k = (0.95 + v * 0.036).toFixed(2);
+      const pipe = (1.1 + v * 0.145).toFixed(1);
+      const cac = Math.max(1.4, (5.2 - v * 0.17)).toFixed(1);
+      const act = Math.min(84, (46 + v * 1.55)).toFixed(1);
+      const roas = (3.2 + v * 0.27).toFixed(1);
+
+      document.getElementById('growth-k-badge').textContent = `K-Factor: ${k}x`;
+      document.getElementById('growth-arr-readout').textContent = `+$${pipe}M Pipeline / Qtr`;
+      document.getElementById('growth-cac').textContent = `${cac} mos`;
+      document.getElementById('growth-act').textContent = `${act}%`;
+      document.getElementById('growth-roas').textContent = `${roas}x`;
+      markEngineTested(4);
+    }
+
+    /* 7. Work Matrix Filter */
+    function filterWork(cat) {
+      document.querySelectorAll('.work-card').forEach((card) => {
+        const c = card.getAttribute('data-category');
+        card.style.display = (cat === 'all' || c === cat) ? 'flex' : 'none';
+      });
+      document.querySelectorAll('.work-filter-btn').forEach((btn) => {
+        if (btn.getAttribute('data-filter') === cat) {
+          btn.className = 'work-filter-btn px-3 py-1.5 rounded-lg text-xs font-mono border bg-[var(--foreground)] text-[var(--background)]';
+        } else {
+          btn.className = 'work-filter-btn px-3 py-1.5 rounded-lg text-xs font-mono border border-[var(--border)] hover:bg-[var(--muted)]';
+        }
+      });
+    }
+
+    /* 8. Interactive 5-Engine ROI Calculator */
+    function recalculateROI() {
+      const baseVisitors = Number(document.getElementById('sim-visitors').value);
+      document.getElementById('sim-visitors-label').textContent = `${baseVisitors.toLocaleString()} / mo`;
+
+      let multiplier = 1;
+      let totalHours = 0;
+      document.querySelectorAll('.sim-check').forEach((chk) => {
+        if (chk.checked) {
+          multiplier *= Number(chk.getAttribute('data-mult'));
+          totalHours += Number(chk.getAttribute('data-hours'));
+        }
+      });
+
+      const projectedTraffic = Math.round(baseVisitors * multiplier);
+      const pipelineMillions = ((projectedTraffic * 0.032 * 220) / 1000000).toFixed(2);
+
+      document.getElementById('sim-pipeline-out').textContent = `+$${pipelineMillions}M`;
+      document.getElementById('sim-traffic-out').textContent = `${projectedTraffic.toLocaleString()}/mo`;
+      document.getElementById('sim-hours-out').textContent = `${totalHours} hrs/wk`;
+    }
+
+    /* 9. Theme Toggle (Light / Dark Mode) */
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.classList.toggle('dark');
+      document.getElementById('theme-icon').textContent = isDark ? '☀' : '☾';
+    }
+
+    /* 10. Modals & Clipboard Toast */
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-2');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+      }, 2400);
+    }
+
+    function copyEngineBrief(e, engineName) {
+      if (e) e.stopPropagation();
+      const text = `Vesper Studio Architecture Brief — ${engineName}: High-converting Inter + Instrument Serif design, programmatic SEO/llms.txt, AI video synthesis & automated growth.`;
+      if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
+      showToast(`Copied ${engineName} brief to clipboard ✓`);
+    }
+
+    function openBriefModal(tierTitle) {
+      document.getElementById('modal-tier-title').textContent = tierTitle;
+      const m = document.getElementById('brief-modal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+
+    function closeBriefModal() {
+      const m = document.getElementById('brief-modal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function submitProjectBrief() {
+      const url = document.getElementById('brief-url').value || 'your-startup.com';
+      const selected = Array.from(document.querySelectorAll('.brief-engine:checked')).map(i => i.value).join(', ');
+      closeBriefModal();
+      showToast(`Brief locked for ${url} (${selected}) ✓`);
+    }
+
+    function openLlmsModal(e) {
+      if (e) e.stopPropagation();
+      const m = document.getElementById('llms-modal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+
+    function closeLlmsModal() {
+      const m = document.getElementById('llms-modal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    /* 11. Interactive One-Click Gmail Dispatch (laatharv@gmail.com) */
+    function selectGmailTopic(btn, topic) {
+      document.querySelectorAll('.gmail-topic-pill').forEach((p) => {
+        p.className = 'gmail-topic-pill px-2.5 py-1 rounded-md text-xs font-mono border border-[var(--border)] bg-[var(--background)]/80 hover:border-[var(--foreground)] transition cursor-pointer';
+      });
+      btn.className = 'gmail-topic-pill px-2.5 py-1 rounded-md text-xs font-mono border border-[var(--brand)] bg-[var(--brand)]/10 text-[var(--brand)] font-semibold transition cursor-pointer';
+
+      const subject = `[Vesper Studio] ${topic}`;
+      const body = `Hi Atharv,\n\nWe'd love to explore working together on ${topic}.\n\nOur website / product: \nTimeline & goals: `;
+
+      const preview = document.getElementById('gmail-subject-preview');
+      if (preview) preview.textContent = subject;
+
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent('laatharv@gmail.com')}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const gmailLink = document.getElementById('gmail-direct-link');
+      if (gmailLink) gmailLink.href = gmailUrl;
+
+      const mailtoLink = document.getElementById('mailto-fallback-link');
+      if (mailtoLink) mailtoLink.href = `mailto:laatharv@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+      showToast(`Gmail subject pre-loaded: ${topic}`);
+    }
+
+    function copyDirectEmail() {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText('laatharv@gmail.com').catch(() => {});
+      }
+      const lbl = document.getElementById('copy-email-label');
+      if (lbl) {
+        lbl.textContent = '✓ laatharv@gmail.com';
+        setTimeout(() => { lbl.textContent = '📋 Copy Email'; }, 2200);
+      }
+      showToast('Copied laatharv@gmail.com to clipboard ✓');
+    }
+
+    // Initialize coverflow & ROI simulator on load
+    renderCoverflow();
+    recalculateROI();
+
+    /* =========================================================================
+       12. sloemo01/diorama Engine — Live Three.js Winter Ice-Fishing Diorama
+       Locked Camera (fov:20.5, az:45, elev:33) + 64-Color Bayer PixelPost + Rigged Cast
+       ========================================================================= */
+    (function initWorkDiorama() {
+      const dCanvas = document.getElementById('work-diorama-canvas');
+      if (!dCanvas || typeof THREE === 'undefined') return;
+
+      const LOOP_LEN = 20.0;
+      const PALETTE_64 = [
+        0xffffff, 0xf7f9fc, 0xedf2f8, 0xe1eaf4, 0xd2e0ef, 0xc1d5e9,
+        0xaec8e2, 0x97b9da, 0x7fa7cf, 0x6793c0, 0x4f7dad, 0x396696,
+        0x274e78, 0x1c3b5e, 0x142b47, 0x0d1e33, 0x081424, 0x3b739b, 0x5c95bd, 0x85b8d9,
+        0x7a563d, 0x684730, 0x573925, 0x462c1b, 0x352012, 0x9c7454, 0xb88f6c, 0xd1ab86, 0x8c6244, 0x4d3320,
+        0x1d3825, 0x264930, 0x2f5b3a, 0x3b6e47, 0x4b8256, 0x609968, 0x4c6b3c, 0x698c54,
+        0xf0ede6, 0xdcd7cc, 0xc2bcb0, 0xa39c8e, 0x7d7669, 0x544f46,
+        0xf6c9a8, 0xe5b18d, 0xcc9672, 0xeb564b, 0xc84b31, 0x9e341e,
+        0xe6dfd3, 0xd99b26, 0x24344d, 0x2d333b, 0x23262b, 0x16181c,
+        0x489fb5, 0x6ec3d4, 0xa8e4ef, 0xffd166, 0xf4a261, 0xe76f51, 0x707985, 0x8d97a5
+      ];
+
+      const clamp01 = (v) => Math.max(0, Math.min(1, v));
+      const lerp = (a, b, u) => a + (b - a) * u;
+      const smooth = (u) => { const c = clamp01(u); return c * c * (3 - 2 * c); };
+
+      function keysAt(t, kf) {
+        if (t <= kf[0][0]) return kf[0][1];
+        for (let i = 0; i < kf.length - 1; i++) {
+          const [t0, v0] = kf[i];
+          const [t1, v1] = kf[i + 1];
+          if (t <= t1) {
+            const u = (t - t0) / Math.max(0.0001, t1 - t0);
+            return lerp(v0, v1, smooth(u));
+          }
+        }
+        return kf[kf.length - 1][1];
+      }
+
+      // Locked Three-Quarter Camera with Bisection Framing (camera.js)
+      function solveDioramaCamera(aspect, box) {
+        const fov = 20.5;
+        const az = (45 * Math.PI) / 180;
+        const el = (33 * Math.PI) / 180;
+        const target = new THREE.Vector3(0, -0.15, 0);
+        const dir = new THREE.Vector3(
+          Math.cos(el) * Math.sin(az),
+          Math.sin(el),
+          Math.cos(el) * Math.cos(az)
+        ).normalize();
+
+        const cam = new THREE.PerspectiveCamera(fov, aspect, 0.5, 120);
+        const corners = [];
+        for (let dx of [box.min.x, box.max.x]) {
+          for (let dy of [box.min.y, box.max.y]) {
+            for (let dz of [box.min.z, box.max.z]) {
+              corners.push(new THREE.Vector3(dx, dy, dz));
+            }
+          }
+        }
+        let lo = 12, hi = 65;
+        for (let iter = 0; iter < 20; iter++) {
+          const mid = (lo + hi) * 0.5;
+          cam.position.copy(target).addScaledVector(dir, mid);
+          cam.lookAt(target);
+          cam.updateMatrixWorld(true);
+          cam.updateProjectionMatrix();
+          let maxX = 0, maxY = 0;
+          for (const c of corners) {
+            const p = c.clone().project(cam);
+            maxX = Math.max(maxX, Math.abs(p.x));
+            maxY = Math.max(maxY, Math.abs(p.y));
+          }
+          if (maxX > 0.85 || maxY > 0.83) lo = mid;
+          else hi = mid;
+        }
+        cam.position.copy(target).addScaledVector(dir, (lo + hi) * 0.5);
+        cam.lookAt(target);
+        cam.updateProjectionMatrix();
+        return cam;
+      }
+
+      // PixelPost 64-Color Bayer Dither + Ink Contour Shader Pass (post.js)
+      function makePixelPost(renderer, paletteHex, pixelSize = 2) {
+        const paletteVecs = [];
+        for (let i = 0; i < 64; i++) {
+          const c = new THREE.Color(paletteHex[i % paletteHex.length]);
+          paletteVecs.push(new THREE.Vector3(c.r, c.g, c.b));
+        }
+        const rt = new THREE.WebGLRenderTarget(1, 1, {
+          minFilter: THREE.NearestFilter,
+          magFilter: THREE.NearestFilter,
+          format: THREE.RGBAFormat
+        });
+        const orthoCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        const mat = new THREE.ShaderMaterial({
+          uniforms: {
+            tColor: { value: rt.texture },
+            uResolution: { value: new THREE.Vector2(1, 1) },
+            uPalette: { value: paletteVecs },
+            uDitherStrength: { value: 0.042 },
+            uInkStrength: { value: 0.58 }
+          },
+          vertexShader: `
+            varying vec2 vUv;
+            void main() {
+              vUv = uv;
+              gl_Position = vec4(position.xy, 0.0, 1.0);
+            }
+          `,
+          fragmentShader: `
+            precision highp float;
+            uniform sampler2D tColor;
+            uniform vec2 uResolution;
+            uniform vec3 uPalette[64];
+            uniform float uDitherStrength;
+            uniform float uInkStrength;
+            varying vec2 vUv;
+
+            float luma(vec3 c) { return dot(c, vec3(0.299, 0.587, 0.114)); }
+            float bayer2(vec2 a) { a = floor(a); return fract(a.x * 0.5 + a.y * a.y * 0.75); }
+            float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
+            float bayer8(vec2 a) { return bayer4(0.5 * a) * 0.25 + bayer2(a); }
+
+            vec3 nearestPalette(vec3 col) {
+              vec3 best = uPalette[0];
+              float bestD = 999.0;
+              for (int i = 0; i < 64; i++) {
+                vec3 d = col - uPalette[i];
+                float dist = dot(d, vec3(0.30, 0.59, 0.11) * d);
+                if (dist < bestD) { bestD = dist; best = uPalette[i]; }
+              }
+              return best;
+            }
+
+            void main() {
+              vec2 texel = 1.0 / uResolution;
+              vec4 center = texture2D(tColor, vUv);
+              if (center.a < 0.08) {
+                gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+                return;
+              }
+              vec3 col = center.rgb;
+              vec4 nL = texture2D(tColor, vUv + vec2(-texel.x, 0.0));
+              vec4 nR = texture2D(tColor, vUv + vec2( texel.x, 0.0));
+              vec4 nU = texture2D(tColor, vUv + vec2(0.0,  texel.y));
+              vec4 nD = texture2D(tColor, vUv + vec2(0.0, -texel.y));
+
+              float cLuma = luma(col);
+              float diff = max(
+                max(abs(cLuma - luma(nL.rgb)), abs(cLuma - luma(nR.rgb))),
+                max(abs(cLuma - luma(nU.rgb)), abs(cLuma - luma(nD.rgb)))
+              );
+              float alphaEdge = max(
+                max(abs(center.a - nL.a), abs(center.a - nR.a)),
+                max(abs(center.a - nU.a), abs(center.a - nD.a))
+              );
+              float edge = pow(clamp(diff * 1.45 + alphaEdge * 0.65, 0.0, 1.0), 0.4545);
+              float gate = smoothstep(0.004, 0.055, diff);
+              float d = (bayer8(floor(vUv * uResolution)) - 0.5) * uDitherStrength * gate;
+              vec3 snapped = nearestPalette(clamp(col + vec3(d), 0.0, 1.0));
+              float inkMask = uInkStrength * smoothstep(0.16, 0.38, edge);
+              vec3 finalCol = mix(snapped, vec3(0.055, 0.045, 0.05), inkMask);
+              finalCol = mix(vec3(1.0), finalCol, smoothstep(0.1, 0.85, center.a));
+              gl_FragColor = vec4(finalCol, 1.0);
+            }
+          `,
+          depthWrite: false,
+          depthTest: false
+        });
+        const postScene = new THREE.Scene();
+        postScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat));
+
+        return {
+          setSize(w, h, px = pixelSize) {
+            const rw = Math.max(64, Math.floor(w / px));
+            const rh = Math.max(64, Math.floor(h / px));
+            rt.setSize(rw, rh);
+            mat.uniforms.uResolution.value.set(rw, rh);
+          },
+          render(scene, cam, enabled) {
+            if (!enabled) {
+              renderer.setRenderTarget(null);
+              renderer.setClearColor(0xffffff, 1);
+              renderer.render(scene, cam);
+              return;
+            }
+            renderer.setRenderTarget(rt);
+            renderer.setClearColor(0xffffff, 0);
+            renderer.clear();
+            renderer.render(scene, cam);
+            renderer.setRenderTarget(null);
+            renderer.render(postScene, orthoCam);
+          }
+        };
+      }
+
+      // Rigged Winter Cast Builder (peopleModel-street.js)
+      function buildCastFigure(opts) {
+        const root = new THREE.Group();
+        const matParka = new THREE.MeshStandardMaterial({ color: opts.parka, roughness: 0.75 });
+        const matPants = new THREE.MeshStandardMaterial({ color: opts.pants, roughness: 0.82 });
+        const matSkin  = new THREE.MeshStandardMaterial({ color: 0xf6c9a8, roughness: 0.65 });
+        const matHat   = new THREE.MeshStandardMaterial({ color: opts.hat, roughness: 0.8 });
+        const matScarf = new THREE.MeshStandardMaterial({ color: opts.scarf, roughness: 0.78 });
+        const matBoot  = new THREE.MeshStandardMaterial({ color: 0x3b2618, roughness: 0.7 });
+        const matDark  = new THREE.MeshStandardMaterial({ color: 0x16181c, roughness: 0.5 });
+
+        const shadowGeo = new THREE.CircleGeometry(0.36, 18);
+        shadowGeo.rotateX(-Math.PI / 2);
+        const shadow = new THREE.Mesh(shadowGeo, new THREE.MeshBasicMaterial({ color: 0x5c7c99, transparent: true, opacity: 0.28, depthWrite: false }));
+        shadow.position.y = 0.015;
+        root.add(shadow);
+
+        const pelvis = new THREE.Group();
+        pelvis.position.y = 0.72;
+        root.add(pelvis);
+        pelvis.add(new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.22, 0.26), matPants));
+
+        const torso = new THREE.Group();
+        torso.position.y = 0.11;
+        pelvis.add(torso);
+        const chest = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.50, 0.32), matParka);
+        chest.position.y = 0.25;
+        chest.castShadow = true;
+        torso.add(chest);
+
+        const scarf = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.20, 0.11, 12), matScarf);
+        scarf.position.y = 0.50;
+        torso.add(scarf);
+
+        const head = new THREE.Group();
+        head.position.y = 0.55;
+        torso.add(head);
+        const skull = new THREE.Mesh(new THREE.SphereGeometry(0.19, 14, 12), matSkin);
+        skull.position.y = 0.14;
+        skull.castShadow = true;
+        head.add(skull);
+
+        for (let sx of [-1, 1]) {
+          const eye = new THREE.Mesh(new THREE.SphereGeometry(0.024, 8, 8), matDark);
+          eye.position.set(sx * 0.068, 0.165, 0.168);
+          head.add(eye);
+        }
+
+        const beanie = new THREE.Mesh(new THREE.SphereGeometry(0.202, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.58), matHat);
+        beanie.position.y = 0.155;
+        head.add(beanie);
+        const pom = new THREE.Mesh(new THREE.SphereGeometry(0.062, 8, 8), matScarf);
+        pom.position.y = 0.38;
+        head.add(pom);
+
+        function makeArm(side) {
+          const shoulder = new THREE.Group();
+          shoulder.position.set(side * 0.28, 0.44, 0);
+          torso.add(shoulder);
+          const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.068, 0.26, 8), matParka);
+          upper.position.y = -0.12;
+          upper.castShadow = true;
+          shoulder.add(upper);
+
+          const elbow = new THREE.Group();
+          elbow.position.y = -0.24;
+          shoulder.add(elbow);
+          const fore = new THREE.Mesh(new THREE.CylinderGeometry(0.066, 0.058, 0.24, 8), matParka);
+          fore.position.y = -0.11;
+          fore.castShadow = true;
+          elbow.add(fore);
+
+          const wrist = new THREE.Group();
+          wrist.position.y = -0.23;
+          elbow.add(wrist);
+          wrist.add(new THREE.Mesh(new THREE.SphereGeometry(0.065, 8, 8), matHat));
+          return { shoulder, elbow, wrist };
+        }
+
+        function makeLeg(side) {
+          const hip = new THREE.Group();
+          hip.position.set(side * 0.11, -0.05, 0);
+          pelvis.add(hip);
+          const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.075, 0.34, 8), matPants);
+          thigh.position.y = -0.16;
+          hip.add(thigh);
+
+          const knee = new THREE.Group();
+          knee.position.y = -0.33;
+          hip.add(knee);
+          const shin = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.065, 0.32, 8), matPants);
+          shin.position.y = -0.15;
+          knee.add(shin);
+
+          const ankle = new THREE.Group();
+          ankle.position.y = -0.31;
+          knee.add(ankle);
+          const boot = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.11, 0.22), matBoot);
+          boot.position.set(0, -0.03, 0.04);
+          ankle.add(boot);
+          return { hip, knee, ankle };
+        }
+
+        const armL = makeArm(-1), armR = makeArm(1);
+        const legL = makeLeg(-1), legR = makeLeg(1);
+        return {
+          root, pelvis, torso, head,
+          shoulderL: armL.shoulder, elbowL: armL.elbow, wristL: armL.wrist,
+          shoulderR: armR.shoulder, elbowR: armR.elbow, wristR: armR.wrist,
+          hipL: legL.hip, kneeL: legL.knee, ankleL: legL.ankle,
+          hipR: legR.hip, kneeR: legR.knee, ankleR: legR.ankle
+        };
+      }
+
+      const renderer = new THREE.WebGLRenderer({ canvas: dCanvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(1);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+      const scene = new THREE.Scene();
+      scene.add(new THREE.HemisphereLight(0xf4f8ff, 0x7b6a58, 0.74));
+      const sun = new THREE.DirectionalLight(0xfff5e4, 1.18);
+      sun.position.set(-9.5, 15.0, 8.5);
+      sun.castShadow = true;
+      sun.shadow.mapSize.set(1024, 1024);
+      sun.shadow.camera.near = 2;
+      sun.shadow.camera.far = 38;
+      const sd = 8.2;
+      sun.shadow.camera.left = -sd; sun.shadow.camera.right = sd;
+      sun.shadow.camera.top = sd; sun.shadow.camera.bottom = -sd;
+      sun.shadow.bias = -0.0005;
+      scene.add(sun);
+      const fill = new THREE.DirectionalLight(0xbfd8f2, 0.35);
+      fill.position.set(8, 6, -8);
+      scene.add(fill);
+
+      // World Slab & Clipping Planes
+      const world = new THREE.Group();
+      scene.add(world);
+      const halfSlab = 5.6;
+      renderer.localClippingEnabled = true;
+      renderer.clippingPlanes = [
+        new THREE.Plane(new THREE.Vector3( 1, 0, 0), halfSlab),
+        new THREE.Plane(new THREE.Vector3(-1, 0, 0), halfSlab),
+        new THREE.Plane(new THREE.Vector3( 0, 0, 1), halfSlab),
+        new THREE.Plane(new THREE.Vector3( 0, 0,-1), halfSlab)
+      ];
+
+      const matEarth = new THREE.MeshStandardMaterial({ color: 0x5c3c28, roughness: 0.9 });
+      const matSubEarth = new THREE.MeshStandardMaterial({ color: 0x462c1b, roughness: 0.95 });
+      const matMoss  = new THREE.MeshStandardMaterial({ color: 0x4c6b3c, roughness: 0.85 });
+      const matSnow  = new THREE.MeshStandardMaterial({ color: 0xf5f8fc, roughness: 0.72 });
+      const matIce   = new THREE.MeshStandardMaterial({ color: 0xaecae0, roughness: 0.25, metalness: 0.08 });
+      const matHoleWater = new THREE.MeshStandardMaterial({ color: 0x0d1e33, roughness: 0.18 });
+      const matWood = new THREE.MeshStandardMaterial({ color: 0x7a563d, roughness: 0.8 });
+
+      const earthBase = new THREE.Mesh(new THREE.BoxGeometry(11.2, 0.72, 11.2), matEarth);
+      earthBase.position.y = -0.42;
+      earthBase.receiveShadow = true;
+      world.add(earthBase);
+
+      const subBand = new THREE.Mesh(new THREE.BoxGeometry(11.22, 0.24, 11.22), matSubEarth);
+      subBand.position.y = -0.66;
+      world.add(subBand);
+
+      const mossRim = new THREE.Mesh(new THREE.BoxGeometry(11.18, 0.14, 11.18), matMoss);
+      mossRim.position.y = -0.03;
+      world.add(mossRim);
+
+      const iceSheet = new THREE.Mesh(new THREE.BoxGeometry(10.7, 0.10, 10.7), matIce);
+      iceSheet.position.y = 0.01;
+      iceSheet.receiveShadow = true;
+      world.add(iceSheet);
+
+      // Circular Ice Hole
+      const holePos = new THREE.Vector3(-0.20, 0.065, 0.42);
+      const holeWater = new THREE.Mesh(new THREE.CylinderGeometry(1.02, 1.02, 0.04, 28), matHoleWater);
+      holeWater.position.copy(holePos);
+      world.add(holeWater);
+
+      for (let i = 0; i < 16; i++) {
+        const ang = (i / 16) * Math.PI * 2;
+        const rad = 1.08 + (i % 3) * 0.05;
+        const slush = new THREE.Mesh(new THREE.DodecahedronGeometry(0.08, 0), matSnow);
+        slush.position.set(holePos.x + Math.cos(ang) * rad, 0.08, holePos.z + Math.sin(ang) * rad);
+        slush.scale.y = 0.55;
+        world.add(slush);
+      }
+
+      // Perimeter Snow Banks & Drifts
+      const snowBanks = [
+        [-3.8, -3.8, 3.6, 0.42, 3.2], [-4.5, -1.2, 2.2, 0.34, 3.6], [-1.5, -4.4, 3.6, 0.36, 2.1],
+        [ 3.6, -3.7, 3.4, 0.38, 3.0], [ 4.4, -0.8, 2.1, 0.35, 3.8],
+        [-4.3,  2.4, 2.2, 0.30, 3.8], [-3.2,  4.3, 3.4, 0.28, 2.0],
+        [ 3.8,  3.6, 3.4, 0.36, 3.1], [ 1.2,  4.5, 3.6, 0.28, 1.9]
+      ];
+      for (const [bx, bz, sx, sy, sz] of snowBanks) {
+        const mound = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), matSnow);
+        mound.position.set(bx, sy * 0.5, bz);
+        mound.castShadow = true;
+        mound.receiveShadow = true;
+        world.add(mound);
+      }
+      const driftCoords = [
+        [-2.8, -3.2, 1.35], [-1.2, -3.8, 1.2], [0.5, -4.1, 1.3], [2.4, -3.5, 1.25],
+        [3.7, -2.0, 1.15], [3.9, 0.2, 1.1], [3.4, 2.2, 1.25], [2.2, 3.4, 1.35],
+        [0.8, 3.9, 1.1], [-2.5, 3.7, 1.2], [-3.7, 1.8, 1.25], [-3.9, -0.4, 1.2]
+      ];
+      for (const [dx, dz, dr] of driftCoords) {
+        const drift = new THREE.Mesh(new THREE.SphereGeometry(dr, 12, 8), matSnow);
+        drift.scale.set(1.15, 0.28, 1.05);
+        drift.position.set(dx, 0.12, dz);
+        drift.receiveShadow = true;
+        world.add(drift);
+      }
+
+      // Snow Pines & Bare Birches
+      const swayTrees = [];
+      function makeSnowPine(x, z, scale = 1.0) {
+        const tree = new THREE.Group();
+        tree.position.set(x, 0.22, z);
+        tree.scale.setScalar(scale);
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.16, 0.65, 8), matWood);
+        trunk.position.y = 0.28;
+        tree.add(trunk);
+        const matNeedles = new THREE.MeshStandardMaterial({ color: 0x264930, roughness: 0.82 });
+        const tiers = [
+          { y: 0.72, r: 0.82, h: 0.78 },
+          { y: 1.18, r: 0.66, h: 0.70 },
+          { y: 1.58, r: 0.48, h: 0.62 },
+          { y: 1.92, r: 0.30, h: 0.50 }
+        ];
+        for (const t of tiers) {
+          const cone = new THREE.Mesh(new THREE.ConeGeometry(t.r, t.h, 8), matNeedles);
+          cone.position.y = t.y;
+          cone.castShadow = true;
+          tree.add(cone);
+          const cap = new THREE.Mesh(new THREE.ConeGeometry(t.r * 0.92, t.h * 0.42, 8), matSnow);
+          cap.position.y = t.y + t.h * 0.22;
+          tree.add(cap);
+        }
+        world.add(tree);
+        swayTrees.push(tree);
+      }
+      function makeBareBirch(x, z, scale = 1.0) {
+        const birch = new THREE.Group();
+        birch.position.set(x, 0.24, z);
+        birch.scale.setScalar(scale);
+        const matBark = new THREE.MeshStandardMaterial({ color: 0xdcd7cc, roughness: 0.75 });
+        const mainTrunk = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.09, 2.45, 6), matBark);
+        mainTrunk.position.y = 1.2;
+        mainTrunk.castShadow = true;
+        birch.add(mainTrunk);
+        const branches = [
+          { y: 1.1, rx: 0.45, rz: 0.52, len: 0.95 },
+          { y: 1.35, rx: -0.38, rz: -0.48, len: 0.88 },
+          { y: 1.65, rx: 0.32, rz: -0.42, len: 0.76 }
+        ];
+        for (const b of branches) {
+          const br = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.035, b.len, 5), matBark);
+          br.position.set(0, b.y, 0);
+          br.rotation.set(b.rx, 0, b.rz);
+          br.translateY(b.len * 0.42);
+          birch.add(br);
+        }
+        world.add(birch);
+        swayTrees.push(birch);
+      }
+      makeSnowPine(-3.85, -1.65, 1.15);
+      makeSnowPine(-3.15, -2.25, 0.78);
+      makeBareBirch(-2.65, -3.35, 1.08);
+      makeBareBirch(-3.30, -2.95, 0.92);
+      makeSnowPine(2.35, -3.15, 0.85);
+      makeBareBirch(3.45, -1.85, 1.12);
+      makeSnowPine(4.05, -0.55, 1.05);
+      makeSnowPine(1.95, 2.75, 0.96);
+
+      // Stool, Oak Catch Bucket & Steaming Red Thermos
+      const stoolGroup = new THREE.Group();
+      stoolGroup.position.set(1.02, 0.06, -0.52);
+      stoolGroup.rotation.y = -0.65;
+      world.add(stoolGroup);
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.06, 0.38), matWood);
+      seat.position.y = 0.42;
+      stoolGroup.add(seat);
+      for (let lx of [-0.17, 0.17]) {
+        for (let lz of [-0.13, 0.13]) {
+          const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.44, 6), matWood);
+          leg.position.set(lx, 0.21, lz);
+          stoolGroup.add(leg);
+        }
+      }
+
+      const bucketGroup = new THREE.Group();
+      bucketGroup.position.set(-0.68, 0.06, -0.88);
+      world.add(bucketGroup);
+      const bucketBody = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.22, 0.17, 0.38, 12),
+        new THREE.MeshStandardMaterial({ color: 0x462c1b, roughness: 0.78 })
+      );
+      bucketBody.position.y = 0.19;
+      bucketBody.castShadow = true;
+      bucketGroup.add(bucketBody);
+
+      const thermosGroup = new THREE.Group();
+      thermosGroup.position.set(1.58, 0.06, -0.10);
+      world.add(thermosGroup);
+      const thermosBody = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.085, 0.09, 0.32, 10),
+        new THREE.MeshStandardMaterial({ color: 0xc84b31, roughness: 0.4 })
+      );
+      thermosBody.position.y = 0.16;
+      thermosBody.castShadow = true;
+      thermosGroup.add(thermosBody);
+      const thermosCup = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.088, 0.085, 0.09, 10),
+        new THREE.MeshStandardMaterial({ color: 0xe6dfd3, roughness: 0.35 })
+      );
+      thermosCup.position.y = 0.35;
+      thermosGroup.add(thermosCup);
+
+      const steamPuffs = [];
+      for (let i = 0; i < 4; i++) {
+        const puff = new THREE.Mesh(
+          new THREE.SphereGeometry(0.045, 6, 6),
+          new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.65 })
+        );
+        thermosGroup.add(puff);
+        steamPuffs.push(puff);
+      }
+
+      // Cast 1: Finn (Angler) + Articulated Cedar Rod + Line + Bobber
+      const finn = buildCastFigure({ parka: 0x2f5b3a, pants: 0x23262b, hat: 0x23262b, scarf: 0xe6dfd3 });
+      finn.root.position.set(1.02, 0.06, -0.52);
+      finn.root.rotation.y = -2.25;
+      world.add(finn.root);
+
+      const rodGroup = new THREE.Group();
+      finn.wristR.add(rodGroup);
+      const rodSegments = [];
+      let parentSeg = rodGroup;
+      const segLengths = [0.42, 0.40, 0.38, 0.34];
+      const segRadii   = [0.022, 0.017, 0.012, 0.008];
+      for (let i = 0; i < 4; i++) {
+        const segPivot = new THREE.Group();
+        if (i > 0) segPivot.position.z = segLengths[i - 1];
+        parentSeg.add(segPivot);
+        const segMesh = new THREE.Mesh(new THREE.CylinderGeometry(segRadii[i] * 0.8, segRadii[i], segLengths[i], 6), matWood);
+        segMesh.rotation.x = Math.PI / 2;
+        segMesh.position.z = segLengths[i] * 0.5;
+        segPivot.add(segMesh);
+        rodSegments.push(segPivot);
+        parentSeg = segPivot;
+      }
+      const rodTipMarker = new THREE.Object3D();
+      rodTipMarker.position.z = segLengths[3];
+      parentSeg.add(rodTipMarker);
+
+      const linePts = [];
+      for (let i = 0; i <= 12; i++) linePts.push(new THREE.Vector3());
+      const fishingLine = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(linePts),
+        new THREE.LineBasicMaterial({ color: 0x343b46 })
+      );
+      world.add(fishingLine);
+
+      const bobberGroup = new THREE.Group();
+      bobberGroup.position.set(holePos.x, 0.08, holePos.z);
+      world.add(bobberGroup);
+      bobberGroup.add(
+        new THREE.Mesh(new THREE.SphereGeometry(0.065, 8, 8, 0, Math.PI * 2, 0, Math.PI * 0.5), new THREE.MeshStandardMaterial({ color: 0xeb564b })),
+        new THREE.Mesh(new THREE.SphereGeometry(0.065, 8, 8, 0, Math.PI * 2, Math.PI * 0.5, Math.PI * 0.5), new THREE.MeshStandardMaterial({ color: 0xffffff }))
+      );
+
+      // Cast 2: Maya (Camp Scout on Snow Ridge with Brass Lantern)
+      const maya = buildCastFigure({ parka: 0xc84b31, pants: 0x24344d, hat: 0x24344d, scarf: 0xd99b26 });
+      world.add(maya.root);
+      const lanternMesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.065, 0.065, 0.14, 8),
+        new THREE.MeshStandardMaterial({ color: 0xffd166, emissive: 0xf4a261, emissiveIntensity: 0.65 })
+      );
+      lanternMesh.position.y = -0.10;
+      maya.wristL.add(lanternMesh);
+
+      // Leaping Silver-Teal Trout + Water Ripple Rings + 18-Droplet Splash
+      const troutGroup = new THREE.Group();
+      troutGroup.visible = false;
+      world.add(troutGroup);
+      const troutBody = new THREE.Mesh(
+        new THREE.SphereGeometry(0.16, 10, 8),
+        new THREE.MeshStandardMaterial({ color: 0x489fb5, roughness: 0.35 })
+      );
+      troutBody.scale.set(0.65, 0.85, 2.1);
+      troutGroup.add(troutBody);
+      const troutTailPivot = new THREE.Group();
+      troutTailPivot.position.z = -0.30;
+      troutGroup.add(troutTailPivot);
+      const troutTail = new THREE.Mesh(
+        new THREE.ConeGeometry(0.14, 0.22, 4),
+        new THREE.MeshStandardMaterial({ color: 0xa8e4ef, roughness: 0.4 })
+      );
+      troutTail.rotation.x = -Math.PI / 2;
+      troutTail.scale.x = 0.35;
+      troutTailPivot.add(troutTail);
+
+      const rippleRings = [];
+      for (let i = 0; i < 3; i++) {
+        const rGeo = new THREE.RingGeometry(0.12, 0.17, 24);
+        rGeo.rotateX(-Math.PI / 2);
+        const rMesh = new THREE.Mesh(rGeo, new THREE.MeshBasicMaterial({ color: 0xa8e4ef, transparent: true, opacity: 0.0, side: THREE.DoubleSide }));
+        rMesh.position.set(holePos.x, 0.09, holePos.z);
+        world.add(rMesh);
+        rippleRings.push(rMesh);
+      }
+
+      const droplets = [];
+      const dropMat = new THREE.MeshStandardMaterial({ color: 0xa8e4ef, roughness: 0.2 });
+      for (let i = 0; i < 18; i++) {
+        const drop = new THREE.Mesh(new THREE.SphereGeometry(0.042, 6, 6), dropMat);
+        drop.visible = false;
+        world.add(drop);
+        const angle = (i / 18) * Math.PI * 2 + (i % 3) * 0.2;
+        const speed = 0.55 + (i % 4) * 0.18;
+        droplets.push({ mesh: drop, vx: Math.cos(angle) * speed, vz: Math.sin(angle) * speed, vy: 1.55 + (i % 3) * 0.45 });
+      }
+
+      // Pure-Function Timeline Evaluator: applyStage(t)
+      function applyDioramaStage(rawT) {
+        const t = ((rawT % LOOP_LEN) + LOOP_LEN) % LOOP_LEN;
+
+        swayTrees.forEach((tr, idx) => {
+          tr.rotation.z = Math.sin(t * 1.4 + idx * 1.1) * 0.022;
+          tr.rotation.x = Math.cos(t * 1.1 + idx * 0.7) * 0.015;
+        });
+
+        steamPuffs.forEach((puff, i) => {
+          const phase = (t * 0.65 + i * 0.25) % 1.0;
+          puff.position.set(Math.sin(t * 2.2 + i) * 0.04, 0.42 + phase * 0.48, Math.cos(t * 1.8 + i) * 0.04);
+          puff.scale.setScalar(Math.max(0.01, (1.0 - phase) * 1.15));
+        });
+
+        finn.pelvis.position.y = 0.46;
+        finn.hipL.rotation.set(-1.35, 0.15, 0); finn.kneeL.rotation.x = 1.38;
+        finn.hipR.rotation.set(-1.35, -0.15, 0); finn.kneeR.rotation.x = 1.38;
+
+        const torsoPitch = keysAt(t, [
+          [0.0, 0.14], [1.2, -0.10], [2.4, 0.16],
+          [4.5, 0.16], [5.8,  0.34], [7.8, 0.38],
+          [8.0, 0.38], [8.8, -0.36], [11.2,-0.22],
+          [13.0,0.10], [16.5, 0.12], [17.0, 0.08], [20.0, 0.14]
+        ]);
+        const torsoYaw = keysAt(t, [
+          [0.0, 0.0], [12.5, 0.0], [13.4, 0.35], [16.2, 0.28],
+          [17.2,-0.45], [19.0,-0.40], [20.0, 0.0]
+        ]);
+        finn.torso.rotation.set(torsoPitch, torsoYaw, 0);
+        finn.head.rotation.set(-torsoPitch * 0.4 + Math.sin(t * 2.0) * 0.04, torsoYaw * 0.5, 0);
+
+        const armRPitch = keysAt(t, [
+          [0.0,-0.85], [1.1,-1.55], [2.1,-0.78],
+          [4.5,-0.78], [6.0,-0.62], [7.8,-0.58],
+          [8.0,-0.58], [8.9,-1.68], [11.5,-1.35],
+          [13.2,-0.82], [20.0,-0.85]
+        ]);
+        finn.shoulderR.rotation.set(armRPitch, -0.12, 0);
+        finn.elbowR.rotation.x = -0.55;
+        finn.wristR.rotation.x = 0.35;
+
+        const armLPitch = keysAt(t, [
+          [0.0,-0.55], [4.5,-0.55], [5.5,-0.85], [12.5,-1.05],
+          [13.5,-2.15], [15.5,-2.05], [16.8,-0.75], [18.0,-1.45], [19.2,-1.45], [20.0,-0.55]
+        ]);
+        finn.shoulderL.rotation.set(armLPitch, 0.22, 0);
+        finn.elbowL.rotation.x = (t > 8.0 && t < 12.5) ? -0.95 + Math.sin(t * 14.0) * 0.28 : -0.65;
+
+        if (t >= 17.0 && t <= 19.5) {
+          const sipU = smooth(Math.min((t - 17.0) / 0.6, (19.5 - t) / 0.6, 1.0));
+          thermosGroup.position.set(lerp(1.58, 1.15, sipU), lerp(0.06, 0.78, sipU), lerp(-0.10, -0.38, sipU));
+        } else {
+          thermosGroup.position.set(1.58, 0.06, -0.10);
+        }
+
+        const rodBend = keysAt(t, [
+          [0.0, 0.04], [1.2,-0.12], [2.2, 0.05],
+          [4.8, 0.05], [5.6, 0.22], [7.8, 0.28],
+          [8.0, 0.28], [8.9, 0.42], [11.2,0.30],
+          [12.8,0.04], [20.0,0.04]
+        ]);
+        rodSegments.forEach((seg, i) => { seg.rotation.x = rodBend * (0.4 + i * 0.28); });
+
+        let bobY = 0.08 + Math.sin(t * 3.2) * 0.012;
+        if (t >= 4.5 && t <= 8.0) bobY = 0.06 - Math.abs(Math.sin((t - 4.5) * 5.5)) * 0.09;
+        else if (t > 8.0 && t < 13.0) bobY = 0.35;
+        bobberGroup.position.set(holePos.x, bobY, holePos.z);
+
+        if (t >= 8.2 && t <= 13.2) {
+          troutGroup.visible = true;
+          const u = clamp01((t - 8.2) / 5.0);
+          troutGroup.position.set(
+            lerp(holePos.x, -0.68, u),
+            0.12 + Math.sin(u * Math.PI) * 1.95,
+            lerp(holePos.z, -0.88, u)
+          );
+          troutGroup.rotation.set((u - 0.5) * 2.6, Math.atan2(-0.68 - holePos.x, -0.88 - holePos.z), Math.sin(t * 9.0) * 0.22);
+          troutTailPivot.rotation.y = Math.sin(t * 28.0) * 0.55;
+        } else {
+          troutGroup.visible = false;
+        }
+
+        if (t >= 13.1 && t <= 14.4) {
+          const bu = (t - 13.1) / 1.3;
+          const bWave = Math.sin(bu * Math.PI * 4) * 0.08 * (1 - bu);
+          bucketGroup.scale.set(1 + bWave, 1 - bWave, 1 + bWave);
+        } else {
+          bucketGroup.scale.set(1, 1, 1);
+        }
+
+        world.updateMatrixWorld(true);
+        const tipWorld = new THREE.Vector3();
+        rodTipMarker.getWorldPosition(tipWorld);
+        world.worldToLocal(tipWorld);
+        const lineTarget = troutGroup.visible ? troutGroup.position : bobberGroup.position;
+        const posAttr = fishingLine.geometry.attributes.position;
+        for (let i = 0; i <= 12; i++) {
+          const u = i / 12;
+          const sag = (t > 8.0 && t < 13.0) ? 0.02 : 0.18;
+          posAttr.setXYZ(
+            i,
+            lerp(tipWorld.x, lineTarget.x, u),
+            lerp(tipWorld.y, lineTarget.y, u) - Math.sin(u * Math.PI) * sag,
+            lerp(tipWorld.z, lineTarget.z, u)
+          );
+        }
+        posAttr.needsUpdate = true;
+
+        rippleRings.forEach((ring, idx) => {
+          const rPhase = (t * 0.55 + idx * 0.33) % 1.0;
+          const intensity = (t >= 4.5 && t <= 12.5) ? 1.0 : 0.45;
+          ring.scale.setScalar(1.0 + rPhase * 4.8);
+          ring.material.opacity = (1.0 - rPhase) * 0.55 * intensity;
+        });
+
+        const splashT = t - 8.25;
+        droplets.forEach((d) => {
+          if (splashT >= 0 && splashT <= 1.65) {
+            d.mesh.visible = true;
+            d.mesh.position.set(
+              holePos.x + d.vx * splashT,
+              Math.max(0.06, 0.08 + d.vy * splashT - 0.5 * 3.2 * splashT * splashT),
+              holePos.z + d.vz * splashT
+            );
+            d.mesh.scale.setScalar(Math.max(0.01, 1.0 - splashT / 1.65));
+          } else {
+            d.mesh.visible = false;
+          }
+        });
+
+        const mayaX = keysAt(t, [[0.0, -2.85], [4.5, -1.65], [14.5, -1.65], [20.0, -2.85]]);
+        const mayaZ = keysAt(t, [[0.0,  1.25], [4.5, -0.35], [14.5, -0.35], [20.0,  1.25]]);
+        const isWalking = (t < 4.5) || (t > 14.5);
+        maya.root.position.set(mayaX, 0.08, mayaZ);
+        maya.root.rotation.y = (t > 14.5) ? -2.45 : 0.85;
+
+        if (isWalking) {
+          const wPhase = t * 5.2;
+          const stride = Math.sin(wPhase);
+          maya.pelvis.position.y = 0.72 + Math.abs(Math.cos(wPhase)) * 0.035;
+          maya.hipL.rotation.x = stride * 0.48;
+          maya.kneeL.rotation.x = Math.max(0, -stride * 0.55);
+          maya.hipR.rotation.x = -stride * 0.48;
+          maya.kneeR.rotation.x = Math.max(0, stride * 0.55);
+          maya.shoulderL.rotation.set(-0.55, 0, 0);
+          maya.shoulderR.rotation.set(stride * 0.38, 0, 0);
+        } else {
+          maya.pelvis.position.y = 0.72;
+          maya.hipL.rotation.x = 0; maya.kneeL.rotation.x = 0;
+          maya.hipR.rotation.x = 0; maya.kneeR.rotation.x = 0;
+          maya.shoulderL.rotation.set(-0.65, 0, 0);
+          if (t >= 4.5 && t < 8.0) {
+            maya.shoulderR.rotation.set(-1.35, -0.25, 0);
+          } else if (t >= 8.0 && t < 13.0) {
+            maya.shoulderR.rotation.set(-2.55 + Math.sin(t * 10.0) * 0.25, 0, -0.2);
+            maya.pelvis.position.y = 0.72 + Math.abs(Math.sin(t * 8.0)) * 0.08;
+          } else {
+            maya.shoulderR.rotation.set(-2.2, 0, Math.sin(t * 9.0) * 0.35);
+          }
+        }
+      }
+
+      const bounds = new THREE.Box3(new THREE.Vector3(-5.8, -0.9, -5.8), new THREE.Vector3(5.8, 2.7, 5.8));
+      let camera = solveDioramaCamera(1.6, bounds);
+      const post = makePixelPost(renderer, PALETTE_64, 2);
+
+      function resizeWorkDiorama() {
+        const rect = dCanvas.getBoundingClientRect();
+        const w = Math.max(280, Math.floor(rect.width || 540));
+        const h = Math.max(220, Math.floor(rect.height || 300));
+        renderer.setSize(w, h, false);
+        camera = solveDioramaCamera(w / h, bounds);
+        post.setSize(w, h, 2);
+      }
+      window.addEventListener('resize', resizeWorkDiorama);
+      setTimeout(resizeWorkDiorama, 50);
+
+      let isPlaying = true;
+      let simT = 0.0;
+      let shaderEnabled = true;
+      let showingRef = false;
+      let prevNow = performance.now();
+
+      const scrubberEl = document.getElementById('work-diorama-scrubber');
+      const timeLabelEl = document.getElementById('diorama-time-label');
+      const beatBadgeEl = document.getElementById('diorama-beat-badge');
+      const playBtnEl = document.getElementById('btn-diorama-play');
+      const shaderBtnEl = document.getElementById('btn-diorama-shader');
+      const refBtnEl = document.getElementById('btn-diorama-ref');
+      const refImgEl = document.getElementById('work-diorama-ref-img');
+
+      function updateBeatBadge(t) {
+        if (!beatBadgeEl) return;
+        if (t < 4.5) beatBadgeEl.textContent = 'BEAT 01 · CAST & SETTLE';
+        else if (t < 8.0) beatBadgeEl.textContent = 'BEAT 02 · BOBBER BITE & RIPPLES';
+        else if (t < 13.0) beatBadgeEl.textContent = 'BEAT 03 · TROUT BREACH & SPLASH';
+        else if (t < 16.8) beatBadgeEl.textContent = 'BEAT 04 · BUCKET CATCH & HIGH-FIVE';
+        else beatBadgeEl.textContent = 'BEAT 05 · WARM THERMOS SIP';
+      }
+
+      window.toggleWorkDioramaPlay = function() {
+        isPlaying = !isPlaying;
+        if (playBtnEl) {
+          playBtnEl.textContent = isPlaying ? '⏸ Pause' : '▶ Play';
+        }
+      };
+
+      window.jumpWorkDioramaBeat = function(targetTime) {
+        simT = targetTime;
+        if (scrubberEl) scrubberEl.value = simT;
+        if (timeLabelEl) timeLabelEl.textContent = `t = ${simT.toFixed(1)}s / 20.0s`;
+        updateBeatBadge(simT);
+      };
+
+      window.scrubWorkDiorama = function(val) {
+        isPlaying = false;
+        if (playBtnEl) playBtnEl.textContent = '▶ Play';
+        simT = parseFloat(val);
+        if (timeLabelEl) timeLabelEl.textContent = `t = ${simT.toFixed(1)}s / 20.0s`;
+        updateBeatBadge(simT);
+      };
+
+      window.toggleWorkDioramaShader = function() {
+        shaderEnabled = !shaderEnabled;
+        if (shaderBtnEl) {
+          shaderBtnEl.textContent = shaderEnabled ? 'PixelPost: ON' : 'PixelPost: OFF (Crisp 3D)';
+        }
+        showToast(shaderEnabled ? '64-Color Bayer PixelPost enabled' : 'Switched to unquantized 3D view');
+      };
+
+      window.toggleWorkDioramaRef = function() {
+        showingRef = !showingRef;
+        if (showingRef) {
+          dCanvas.classList.add('hidden');
+          refImgEl.classList.remove('hidden');
+          if (refBtnEl) refBtnEl.textContent = 'Show Live 3D';
+          showToast('Showing original reference image');
+        } else {
+          refImgEl.classList.add('hidden');
+          dCanvas.classList.remove('hidden');
+          resizeWorkDiorama();
+          if (refBtnEl) refBtnEl.textContent = 'Compare Still';
+          showToast('Showing live Three.js diorama');
+        }
+      };
+
+      function animateWorkDiorama(now) {
+        const dt = Math.min(0.1, (now - prevNow) * 0.001);
+        prevNow = now;
+        if (isPlaying && !showingRef) {
+          simT = (simT + dt) % LOOP_LEN;
+          if (scrubberEl) scrubberEl.value = simT;
+          if (timeLabelEl) timeLabelEl.textContent = `t = ${simT.toFixed(1)}s / 20.0s`;
+          updateBeatBadge(simT);
+        }
+        if (!showingRef) {
+          applyDioramaStage(simT);
+          post.render(scene, camera, shaderEnabled);
+        }
+        requestAnimationFrame(animateWorkDiorama);
+      }
+      requestAnimationFrame(animateWorkDiorama);
+    })();
+  </script>
+</body>
+</html>
+

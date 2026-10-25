@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Winter Ice-Fishing Diorama — Vesper Studio (sloemo01/diorama)</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      overflow: hidden;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    #stage {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+    .hud {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 14px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      font-size: 12px;
+      color: #161616;
+      z-index: 10;
+    }
+    .hud button {
+      background: #f4f4f5;
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 8px;
+      padding: 4px 9px;
+      font-size: 11px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .hud button:hover, .hud button.active {
+      background: #ea231a;
+      color: #fff;
+      border-color: #ea231a;
+    }
+    .hud input[type="range"] {
+      width: 130px;
+      accent-color: #ea231a;
+      cursor: pointer;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+  <canvas id="stage"></canvas>
+  <div class="hud">
+    <button id="btn-play" class="active" onclick="togglePlay()">⏸ Pause</button>
+    <button onclick="jumpBeat(0.5)">01 Cast</button>
+    <button onclick="jumpBeat(5.5)">02 Bite</button>
+    <button onclick="jumpBeat(9.4)">03 Splash</button>
+    <button onclick="jumpBeat(14.0)">04 Catch</button>
+    <button onclick="jumpBeat(17.8)">05 Sip</button>
+    <input id="scrubber" type="range" min="0" max="20" step="0.05" value="0" oninput="scrubTo(this.value)" />
+    <span id="time-readout" style="font-family: monospace; min-width: 44px;">0.0s</span>
+    <button id="btn-dither" class="active" onclick="toggleDither()">PixelPost: ON</button>
+  </div>
+
+  <script>
+    // ============================================================================
+    // sloemo01/diorama — Winter Ice-Fishing Diorama
+    // Locked Three-Quarter Camera + 64-Color Ordered Bayer PixelPost + Rigged Cast
+    // ============================================================================
+    const LOOP_DURATION = 20.0;
+
+    // 1. 64-Color Curated Winter Alpine & Toy Cast Palette (palette.js)
+    const PALETTE_HEX = [
+      // Snow & Ice ramp (12)
+      0xffffff, 0xf7f9fc, 0xedf2f8, 0xe1eaf4, 0xd2e0ef, 0xc1d5e9,
+      0xaec8e2, 0x97b9da, 0x7fa7cf, 0x6793c0, 0x4f7dad, 0x396696,
+      // Deep ice hole & water ramp (8)
+      0x274e78, 0x1c3b5e, 0x142b47, 0x0d1e33, 0x081424, 0x3b739b, 0x5c95bd, 0x85b8d9,
+      // Cutout slab earth, bark & cedar wood (10)
+      0x7a563d, 0x684730, 0x573925, 0x462c1b, 0x352012, 0x9c7454, 0xb88f6c, 0xd1ab86, 0x8c6244, 0x4d3320,
+      // Pine foliage & moss rim (8)
+      0x1d3825, 0x264930, 0x2f5b3a, 0x3b6e47, 0x4b8256, 0x609968, 0x4c6b3c, 0x698c54,
+      // Birch bark & winter branches (6)
+      0xf0ede6, 0xdcd7cc, 0xc2bcb0, 0xa39c8e, 0x7d7669, 0x544f46,
+      // Cast outfits & skin tones (12)
+      0xf6c9a8, 0xe5b18d, 0xcc9672, 0xeb564b, 0xc84b31, 0x9e341e,
+      0xe6dfd3, 0xd99b26, 0x24344d, 0x2d333b, 0x23262b, 0x16181c,
+      // Silver-teal trout, bucket iron & brass lantern glow (8)
+      0x489fb5, 0x6ec3d4, 0xa8e4ef, 0xffd166, 0xf4a261, 0xe76f51, 0x707985, 0x8d97a5
+    ];
+
+    // 2. Keyframe & Math Helpers (stage.js)
+    const clamp01 = (v) => Math.max(0, Math.min(1, v));
+    const lerp = (a, b, u) => a + (b - a) * u;
+    const smooth = (u) => { const c = clamp01(u); return c * c * (3 - 2 * c); };
+    const easeOutCubic = (u) => 1 - Math.pow(1 - clamp01(u), 3);
+
+    function keysAt(t, keyframes) {
+      if (t <= keyframes[0][0]) return keyframes[0][1];
+      for (let i = 0; i < keyframes.length - 1; i++) {
+        const [t0, v0, easeFn] = keyframes[i];
+        const [t1, v1] = keyframes[i + 1];
+        if (t <= t1) {
+          const u = (t - t0) / Math.max(0.0001, t1 - t0);
+          const e = easeFn ? easeFn(u) : smooth(u);
+          return lerp(v0, v1, e);
+        }
+      }
+      return keyframes[keyframes.length - 1][1];
+    }
+
+    // 3. Locked Three-Quarter Camera + Auto-Framing Bisection (camera.js)
+    function createDioramaCamera(aspect, boundsBox) {
+      const fov = 20.5;
+      const az = (45 * Math.PI) / 180;
+      const el = (33 * Math.PI) / 180;
+      const target = new THREE.Vector3(0, -0.15, 0);
+      const dir = new THREE.Vector3(
+        Math.cos(el) * Math.sin(az),
+        Math.sin(el),
+        Math.cos(el) * Math.cos(az)
+      ).normalize();
+
+      const cam = new THREE.PerspectiveCamera(fov, aspect, 0.5, 120);
+      const corners = [];
+      for (let dx of [boundsBox.min.x, boundsBox.max.x]) {
+        for (let dy of [boundsBox.min.y, boundsBox.max.y]) {
+          for (let dz of [boundsBox.min.z, boundsBox.max.z]) {
+            corners.push(new THREE.Vector3(dx, dy, dz));
+          }
+        }
+      }
+
+      let lo = 12, hi = 65;
+      for (let iter = 0; iter < 22; iter++) {
+        const mid = (lo + hi) * 0.5;
+        cam.position.copy(target).addScaledVector(dir, mid);
+        cam.lookAt(target);
+        cam.updateMatrixWorld(true);
+        cam.updateProjectionMatrix();
+        let maxX = 0, maxY = 0;
+        for (const c of corners) {
+          const p = c.clone().project(cam);
+          maxX = Math.max(maxX, Math.abs(p.x));
+          maxY = Math.max(maxY, Math.abs(p.y));
+        }
+        if (maxX > 0.84 || maxY > 0.82) lo = mid;
+        else hi = mid;
+      }
+      cam.position.copy(target).addScaledVector(dir, (lo + hi) * 0.5);
+      cam.lookAt(target);
+      cam.updateProjectionMatrix();
+      return cam;
+    }
+
+    // 4. PixelPost Fullscreen Shader Pass (post.js)
+    function createPixelPost(renderer, paletteHex, pixelSize = 2) {
+      const paletteVecs = [];
+      for (let i = 0; i < 64; i++) {
+        const c = new THREE.Color(paletteHex[i % paletteHex.length]);
+        paletteVecs.push(new THREE.Vector3(c.r, c.g, c.b));
+      }
+
+      const rt = new THREE.WebGLRenderTarget(1, 1, {
+        minFilter: THREE.NearestFilter,
+        magFilter: THREE.NearestFilter,
+        format: THREE.RGBAFormat
+      });
+
+      const orthoCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+      const mat = new THREE.ShaderMaterial({
+        uniforms: {
+          tColor: { value: rt.texture },
+          uResolution: { value: new THREE.Vector2(1, 1) },
+          uPalette: { value: paletteVecs },
+          uDitherStrength: { value: 0.042 },
+          uInkStrength: { value: 0.58 }
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = vec4(position.xy, 0.0, 1.0);
+          }
+        `,
+        fragmentShader: `
+          precision highp float;
+          uniform sampler2D tColor;
+          uniform vec2 uResolution;
+          uniform vec3 uPalette[64];
+          uniform float uDitherStrength;
+          uniform float uInkStrength;
+          varying vec2 vUv;
+
+          float luma(vec3 c) {
+            return dot(c, vec3(0.299, 0.587, 0.114));
+          }
+
+          // 8x8 Bayer matrix via 2x2 recursion
+          float bayer2(vec2 a) {
+            a = floor(a);
+            return fract(a.x * 0.5 + a.y * a.y * 0.75);
+          }
+          float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
+          float bayer8(vec2 a) { return bayer4(0.5 * a) * 0.25 + bayer2(a); }
+
+          vec3 nearestPalette(vec3 col) {
+            vec3 best = uPalette[0];
+            float bestD = 999.0;
+            for (int i = 0; i < 64; i++) {
+              vec3 d = col - uPalette[i];
+              float dist = dot(d, vec3(0.30, 0.59, 0.11) * d);
+              if (dist < bestD) {
+                bestD = dist;
+                best = uPalette[i];
+              }
+            }
+            return best;
+          }
+
+          void main() {
+            vec2 texel = 1.0 / uResolution;
+            vec4 center = texture2D(tColor, vUv);
+
+            // Paper-white background outside slab coverage
+            if (center.a < 0.08) {
+              gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+              return;
+            }
+
+            vec3 col = center.rgb;
+            vec4 nL = texture2D(tColor, vUv + vec2(-texel.x, 0.0));
+            vec4 nR = texture2D(tColor, vUv + vec2( texel.x, 0.0));
+            vec4 nU = texture2D(tColor, vUv + vec2(0.0,  texel.y));
+            vec4 nD = texture2D(tColor, vUv + vec2(0.0, -texel.y));
+
+            float cLuma = luma(col);
+            float diff = max(
+              max(abs(cLuma - luma(nL.rgb)), abs(cLuma - luma(nR.rgb))),
+              max(abs(cLuma - luma(nU.rgb)), abs(cLuma - luma(nD.rgb)))
+            );
+            float alphaEdge = max(
+              max(abs(center.a - nL.a), abs(center.a - nR.a)),
+              max(abs(center.a - nU.a), abs(center.a - nD.a))
+            );
+            float edge = pow(clamp(diff * 1.45 + alphaEdge * 0.65, 0.0, 1.0), 0.4545);
+
+            // Edge-gated ordered Bayer dither
+            float gate = smoothstep(0.004, 0.055, diff);
+            float d = (bayer8(floor(vUv * uResolution)) - 0.5) * uDitherStrength * gate;
+            vec3 dithered = clamp(col + vec3(d), 0.0, 1.0);
+
+            // Quantize to 64-color palette
+            vec3 snapped = nearestPalette(dithered);
+
+            // Warm near-black ink contour on creases & silhouettes
+            float inkMask = uInkStrength * smoothstep(0.16, 0.38, edge);
+            vec3 finalCol = mix(snapped, vec3(0.055, 0.045, 0.05), inkMask);
+
+            // Clean composite onto paper white at outer alpha rim
+            finalCol = mix(vec3(1.0), finalCol, smoothstep(0.1, 0.85, center.a));
+            gl_FragColor = vec4(finalCol, 1.0);
+          }
+        `,
+        depthWrite: false,
+        depthTest: false
+      });
+
+      const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat);
+      const postScene = new THREE.Scene();
+      postScene.add(quad);
+
+      return {
+        setSize(w, h, px = pixelSize) {
+          const rw = Math.max(64, Math.floor(w / px));
+          const rh = Math.max(64, Math.floor(h / px));
+          rt.setSize(rw, rh);
+          mat.uniforms.uResolution.value.set(rw, rh);
+        },
+        render(scene, camera, enabled = true) {
+          if (!enabled) {
+            renderer.setRenderTarget(null);
+            renderer.setClearColor(0xffffff, 1);
+            renderer.render(scene, camera);
+            return;
+          }
+          renderer.setRenderTarget(rt);
+          renderer.setClearColor(0xffffff, 0);
+          renderer.clear();
+          renderer.render(scene, camera);
+          renderer.setRenderTarget(null);
+          renderer.render(postScene, orthoCam);
+        }
+      };
+    }
+
+    // 5. Clothed Rigged Toy-Scale Person Builder (peopleModel-street.js + poses.js)
+    function buildWinterPerson(opts) {
+      const root = new THREE.Group();
+      const matParka = new THREE.MeshStandardMaterial({ color: opts.parka, roughness: 0.75 });
+      const matPants = new THREE.MeshStandardMaterial({ color: opts.pants, roughness: 0.82 });
+      const matSkin  = new THREE.MeshStandardMaterial({ color: opts.skin || 0xf6c9a8, roughness: 0.65 });
+      const matHat   = new THREE.MeshStandardMaterial({ color: opts.hat, roughness: 0.8 });
+      const matScarf = new THREE.MeshStandardMaterial({ color: opts.scarf, roughness: 0.78 });
+      const matBoot  = new THREE.MeshStandardMaterial({ color: 0x3b2618, roughness: 0.7 });
+      const matDark  = new THREE.MeshStandardMaterial({ color: 0x16181c, roughness: 0.5 });
+
+      // Contact shadow blob on snow/ice
+      const shadowGeo = new THREE.CircleGeometry(0.36, 20);
+      shadowGeo.rotateX(-Math.PI / 2);
+      const shadowMat = new THREE.MeshBasicMaterial({ color: 0x5c7c99, transparent: true, opacity: 0.28, depthWrite: false });
+      const shadow = new THREE.Mesh(shadowGeo, shadowMat);
+      shadow.position.y = 0.015;
+      root.add(shadow);
+
+      // Pelvis
+      const pelvis = new THREE.Group();
+      pelvis.position.y = 0.72;
+      root.add(pelvis);
+
+      const hipsMesh = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.22, 0.26), matPants);
+      hipsMesh.castShadow = true;
+      pelvis.add(hipsMesh);
+
+      // Torso (puffy winter jacket with quilt ribs)
+      const torso = new THREE.Group();
+      torso.position.y = 0.11;
+      pelvis.add(torso);
+
+      const chestMesh = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.50, 0.32), matParka);
+      chestMesh.position.y = 0.25;
+      chestMesh.castShadow = true;
+      chestMesh.receiveShadow = true;
+      torso.add(chestMesh);
+
+      const hemMesh = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.12, 0.34), matParka);
+      hemMesh.position.y = 0.05;
+      torso.add(hemMesh);
+
+      // Cozy wool scarf + tail
+      const scarfRing = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.20, 0.11, 14), matScarf);
+      scarfRing.position.y = 0.50;
+      torso.add(scarfRing);
+
+      // Head + facial features + knit beanie with pom
+      const head = new THREE.Group();
+      head.position.y = 0.55;
+      torso.add(head);
+
+      const skull = new THREE.Mesh(new THREE.SphereGeometry(0.19, 16, 14), matSkin);
+      skull.position.y = 0.14;
+      skull.castShadow = true;
+      head.add(skull);
+
+      // Rosy nose & eyes
+      const nose = new THREE.Mesh(new THREE.SphereGeometry(0.036, 8, 8), new THREE.MeshStandardMaterial({ color: 0xeb8273 }));
+      nose.position.set(0, 0.14, 0.18);
+      head.add(nose);
+
+      for (let sx of [-1, 1]) {
+        const eye = new THREE.Mesh(new THREE.SphereGeometry(0.024, 8, 8), matDark);
+        eye.position.set(sx * 0.068, 0.165, 0.168);
+        head.add(eye);
+      }
+
+      // Beanie dome + folded cuff + pom-pom
+      const beanieDome = new THREE.Mesh(new THREE.SphereGeometry(0.202, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.58), matHat);
+      beanieDome.position.y = 0.155;
+      beanieDome.castShadow = true;
+      head.add(beanieDome);
+
+      const beanieCuff = new THREE.Mesh(new THREE.CylinderGeometry(0.205, 0.205, 0.08, 16), matHat);
+      beanieCuff.position.y = 0.22;
+      head.add(beanieCuff);
+
+      const pom = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 10), matScarf);
+      pom.position.y = 0.38;
+      head.add(pom);
+
+      // Arms (Left & Right)
+      function makeArm(side) {
+        const shoulder = new THREE.Group();
+        shoulder.position.set(side * 0.28, 0.44, 0);
+        torso.add(shoulder);
+
+        const upperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.068, 0.26, 10), matParka);
+        upperArm.position.y = -0.12;
+        upperArm.castShadow = true;
+        shoulder.add(upperArm);
+
+        const elbow = new THREE.Group();
+        elbow.position.y = -0.24;
+        shoulder.add(elbow);
+
+        const foreArm = new THREE.Mesh(new THREE.CylinderGeometry(0.066, 0.058, 0.24, 10), matParka);
+        foreArm.position.y = -0.11;
+        foreArm.castShadow = true;
+        elbow.add(foreArm);
+
+        const wrist = new THREE.Group();
+        wrist.position.y = -0.23;
+        elbow.add(wrist);
+
+        const mitten = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 10), matHat);
+        mitten.castShadow = true;
+        wrist.add(mitten);
+
+        return { shoulder, elbow, wrist };
+      }
+
+      // Legs (Left & Right)
+      function makeLeg(side) {
+        const hip = new THREE.Group();
+        hip.position.set(side * 0.11, -0.05, 0);
+        pelvis.add(hip);
+
+        const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.075, 0.34, 10), matPants);
+        thigh.position.y = -0.16;
+        thigh.castShadow = true;
+        hip.add(thigh);
+
+        const knee = new THREE.Group();
+        knee.position.y = -0.33;
+        hip.add(knee);
+
+        const shin = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.065, 0.32, 10), matPants);
+        shin.position.y = -0.15;
+        shin.castShadow = true;
+        knee.add(shin);
+
+        const ankle = new THREE.Group();
+        ankle.position.y = -0.31;
+        knee.add(ankle);
+
+        const boot = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.11, 0.22), matBoot);
+        boot.position.set(0, -0.03, 0.04);
+        boot.castShadow = true;
+        ankle.add(boot);
+
+        return { hip, knee, ankle };
+      }
+
+      const armL = makeArm(-1);
+      const armR = makeArm(1);
+      const legL = makeLeg(-1);
+      const legR = makeLeg(1);
+
+      return {
+        root,
+        pelvis,
+        torso,
+        head,
+        shoulderL: armL.shoulder, elbowL: armL.elbow, wristL: armL.wrist,
+        shoulderR: armR.shoulder, elbowR: armR.elbow, wristR: armR.wrist,
+        hipL: legL.hip, kneeL: legL.knee, ankleL: legL.ankle,
+        hipR: legR.hip, kneeR: legR.knee, ankleR: legR.ankle
+      };
+    }
+
+    // 6. Build the Complete Winter Ice-Fishing World (matched to user's diorama reference)
+    function buildDioramaWorld(scene, renderer) {
+      const world = new THREE.Group();
+      scene.add(world);
+
+      // 4 World-Space Clipping Planes on the 11.2m × 11.2m slab perimeter
+      const halfSlab = 5.6;
+      renderer.localClippingEnabled = true;
+      renderer.clippingPlanes = [
+        new THREE.Plane(new THREE.Vector3( 1, 0, 0), halfSlab),
+        new THREE.Plane(new THREE.Vector3(-1, 0, 0), halfSlab),
+        new THREE.Plane(new THREE.Vector3( 0, 0, 1), halfSlab),
+        new THREE.Plane(new THREE.Vector3( 0, 0,-1), halfSlab)
+      ];
+
+      // 6A. Cut-Out Earth Slab + Moss Rim + Frozen Blue Lake + Dark Ice Hole
+      const matEarth = new THREE.MeshStandardMaterial({ color: 0x5c3c28, roughness: 0.9 });
+      const matSubEarth = new THREE.MeshStandardMaterial({ color: 0x462c1b, roughness: 0.95 });
+      const matMoss  = new THREE.MeshStandardMaterial({ color: 0x4c6b3c, roughness: 0.85 });
+      const matSnow  = new THREE.MeshStandardMaterial({ color: 0xf5f8fc, roughness: 0.72 });
+      const matIce   = new THREE.MeshStandardMaterial({ color: 0xaecae0, roughness: 0.25, metalness: 0.08 });
+      const matHoleWater = new THREE.MeshStandardMaterial({ color: 0x0d1e33, roughness: 0.18 });
+
+      // Deep brown earth base
+      const earthBase = new THREE.Mesh(new THREE.BoxGeometry(11.2, 0.72, 11.2), matEarth);
+      earthBase.position.y = -0.42;
+      earthBase.receiveShadow = true;
+      world.add(earthBase);
+
+      // Darker soil stratum band at bottom
+      const subBand = new THREE.Mesh(new THREE.BoxGeometry(11.22, 0.24, 11.22), matSubEarth);
+      subBand.position.y = -0.66;
+      world.add(subBand);
+
+      // Green moss trim band visible along outer cutout rim
+      const mossRim = new THREE.Mesh(new THREE.BoxGeometry(11.18, 0.14, 11.18), matMoss);
+      mossRim.position.y = -0.03;
+      mossRim.receiveShadow = true;
+      world.add(mossRim);
+
+      // Frozen lake ice sheet covering central basin
+      const iceSheet = new THREE.Mesh(new THREE.BoxGeometry(10.7, 0.10, 10.7), matIce);
+      iceSheet.position.y = 0.01;
+      iceSheet.receiveShadow = true;
+      world.add(iceSheet);
+
+      // Subtle specular glint patch on ice behind angler (matching reference photo)
+      const glintGeo = new THREE.CircleGeometry(0.45, 20);
+      glintGeo.rotateX(-Math.PI / 2);
+      const glintMesh = new THREE.Mesh(glintGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.65 }));
+      glintMesh.position.set(1.3, 0.064, -2.05);
+      world.add(glintMesh);
+
+      // Circular Ice-Fishing Hole at (-0.15, 0.065, 0.35)
+      const holePos = new THREE.Vector3(-0.20, 0.065, 0.42);
+      const holeWater = new THREE.Mesh(new THREE.CylinderGeometry(1.02, 1.02, 0.04, 32), matHoleWater);
+      holeWater.position.copy(holePos);
+      world.add(holeWater);
+
+      // Ice thickness inner rim + slush chunks around the hole
+      const holeRimGeo = new THREE.RingGeometry(1.00, 1.22, 32);
+      holeRimGeo.rotateX(-Math.PI / 2);
+      const holeRim = new THREE.Mesh(holeRimGeo, new THREE.MeshStandardMaterial({ color: 0xe6eff8, roughness: 0.55 }));
+      holeRim.position.set(holePos.x, 0.068, holePos.z);
+      world.add(holeRim);
+
+      for (let i = 0; i < 18; i++) {
+        const ang = (i / 18) * Math.PI * 2;
+        const rad = 1.08 + (i % 3) * 0.06;
+        const slush = new THREE.Mesh(new THREE.DodecahedronGeometry(0.08 + (i % 2) * 0.035, 0), matSnow);
+        slush.position.set(holePos.x + Math.cos(ang) * rad, 0.08, holePos.z + Math.sin(ang) * rad);
+        slush.scale.y = 0.55;
+        slush.castShadow = true;
+        slush.receiveShadow = true;
+        world.add(slush);
+      }
+
+      // 6B. Sculpted Snow Banks Around the Perimeter (leaving central lake open)
+      const snowBanks = [
+        // Back-left bank (-x, -z)
+        [-3.8, -3.8, 3.6, 0.42, 3.2], [-4.5, -1.2, 2.2, 0.34, 3.6], [-1.5, -4.4, 3.6, 0.36, 2.1],
+        // Back-right bank (+x, -z)
+        [ 3.6, -3.7, 3.4, 0.38, 3.0], [ 4.4, -0.8, 2.1, 0.35, 3.8],
+        // Front-left bank (-x, +z)
+        [-4.3,  2.4, 2.2, 0.30, 3.8], [-3.2,  4.3, 3.4, 0.28, 2.0],
+        // Front-right bank (+x, +z)
+        [ 3.8,  3.6, 3.4, 0.36, 3.1], [ 1.2,  4.5, 3.6, 0.28, 1.9]
+      ];
+      for (const [bx, bz, sx, sy, sz] of snowBanks) {
+        const mound = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), matSnow);
+        mound.position.set(bx, sy * 0.5, bz);
+        mound.castShadow = true;
+        mound.receiveShadow = true;
+        world.add(mound);
+      }
+
+      // Rounded snow drifts along shoreline
+      const driftCoords = [
+        [-2.8, -3.2, 1.35], [-1.2, -3.8, 1.2], [0.5, -4.1, 1.3], [2.4, -3.5, 1.25],
+        [3.7, -2.0, 1.15], [3.9, 0.2, 1.1], [3.4, 2.2, 1.25], [2.2, 3.4, 1.35],
+        [0.8, 3.9, 1.1], [-2.5, 3.7, 1.2], [-3.7, 1.8, 1.25], [-3.9, -0.4, 1.2],
+        [-3.5, -2.0, 1.3]
+      ];
+      for (const [dx, dz, dr] of driftCoords) {
+        const drift = new THREE.Mesh(new THREE.SphereGeometry(dr, 14, 10), matSnow);
+        drift.scale.set(1.15, 0.28, 1.05);
+        drift.position.set(dx, 0.12, dz);
+        drift.castShadow = true;
+        drift.receiveShadow = true;
+        world.add(drift);
+      }
+
+      // 6C. Snow-Capped Spruce Trees & Bare Winter Birch Trees (matching reference layout)
+      const swayTrees = [];
+      function makeSnowPine(x, z, scale = 1.0) {
+        const tree = new THREE.Group();
+        tree.position.set(x, 0.22, z);
+        tree.scale.setScalar(scale);
+
+        const trunk = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.11, 0.16, 0.65, 8),
+          new THREE.MeshStandardMaterial({ color: 0x4d3320, roughness: 0.9 })
+        );
+        trunk.position.y = 0.28;
+        trunk.castShadow = true;
+        tree.add(trunk);
+
+        const matNeedles = new THREE.MeshStandardMaterial({ color: 0x264930, roughness: 0.82 });
+        const tiers = [
+          { y: 0.72, r: 0.82, h: 0.78 },
+          { y: 1.18, r: 0.66, h: 0.70 },
+          { y: 1.58, r: 0.48, h: 0.62 },
+          { y: 1.92, r: 0.30, h: 0.50 }
+        ];
+        for (const t of tiers) {
+          const cone = new THREE.Mesh(new THREE.ConeGeometry(t.r, t.h, 9), matNeedles);
+          cone.position.y = t.y;
+          cone.castShadow = true;
+          cone.receiveShadow = true;
+          tree.add(cone);
+
+          const snowCap = new THREE.Mesh(new THREE.ConeGeometry(t.r * 0.92, t.h * 0.42, 9), matSnow);
+          snowCap.position.y = t.y + t.h * 0.22;
+          snowCap.castShadow = true;
+          tree.add(snowCap);
+        }
+        world.add(tree);
+        swayTrees.push(tree);
+      }
+
+      function makeBareBirch(x, z, scale = 1.0) {
+        const birch = new THREE.Group();
+        birch.position.set(x, 0.24, z);
+        birch.scale.setScalar(scale);
+        const matBark = new THREE.MeshStandardMaterial({ color: 0xdcd7cc, roughness: 0.75 });
+
+        const mainTrunk = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.09, 2.45, 7), matBark);
+        mainTrunk.position.y = 1.2;
+        mainTrunk.castShadow = true;
+        birch.add(mainTrunk);
+
+        const branches = [
+          { y: 1.1, rx: 0.45, rz: 0.52, len: 0.95 },
+          { y: 1.35, rx: -0.38, rz: -0.48, len: 0.88 },
+          { y: 1.65, rx: 0.32, rz: -0.42, len: 0.76 },
+          { y: 1.85, rx: -0.42, rz: 0.38, len: 0.68 }
+        ];
+        for (const b of branches) {
+          const br = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.035, b.len, 6), matBark);
+          br.position.set(0, b.y, 0);
+          br.rotation.set(b.rx, 0, b.rz);
+          br.translateY(b.len * 0.42);
+          br.castShadow = true;
+          birch.add(br);
+        }
+        world.add(birch);
+        swayTrees.push(birch);
+      }
+
+      // Exact placement matching the user's diorama reference image
+      makeSnowPine(-3.85, -1.65, 1.15);
+      makeSnowPine(-3.15, -2.25, 0.78);
+      makeBareBirch(-2.65, -3.35, 1.08);
+      makeBareBirch(-3.30, -2.95, 0.92);
+
+      makeSnowPine(2.35, -3.15, 0.85);
+      makeBareBirch(3.45, -1.85, 1.12);
+      makeSnowPine(4.05, -0.55, 1.05);
+
+      // Front-right pine on snow mound
+      makeSnowPine(1.95, 2.75, 0.96);
+
+      // 6D. Cedar Folding Stool + Oak Catch Bucket + Red Thermos
+      const stoolGroup = new THREE.Group();
+      stoolGroup.position.set(1.02, 0.06, -0.52);
+      stoolGroup.rotation.y = -0.65;
+      world.add(stoolGroup);
+
+      const matWood = new THREE.MeshStandardMaterial({ color: 0x7a563d, roughness: 0.8 });
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.06, 0.38), matWood);
+      seat.position.y = 0.42;
+      seat.castShadow = true;
+      stoolGroup.add(seat);
+
+      for (let lx of [-0.17, 0.17]) {
+        for (let lz of [-0.13, 0.13]) {
+          const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.44, 8), matWood);
+          leg.position.set(lx, 0.21, lz);
+          leg.castShadow = true;
+          stoolGroup.add(leg);
+        }
+      }
+
+      // Oak Catch Bucket with iron hoops at (-0.62, 0.06, -0.92)
+      const bucketGroup = new THREE.Group();
+      bucketGroup.position.set(-0.68, 0.06, -0.88);
+      world.add(bucketGroup);
+
+      const bucketBody = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.22, 0.17, 0.38, 14),
+        new THREE.MeshStandardMaterial({ color: 0x462c1b, roughness: 0.78 })
+      );
+      bucketBody.position.y = 0.19;
+      bucketBody.castShadow = true;
+      bucketGroup.add(bucketBody);
+
+      const matIron = new THREE.MeshStandardMaterial({ color: 0x707985, metalness: 0.4, roughness: 0.45 });
+      for (let hy of [0.10, 0.29]) {
+        const hoop = new THREE.Mesh(new THREE.TorusGeometry(0.205, 0.016, 8, 20), matIron);
+        hoop.rotation.x = Math.PI / 2;
+        hoop.position.y = hy;
+        bucketGroup.add(hoop);
+      }
+      const bail = new THREE.Mesh(new THREE.TorusGeometry(0.21, 0.012, 8, 18, Math.PI), matIron);
+      bail.position.y = 0.36;
+      bail.rotation.z = 0.25;
+      bucketGroup.add(bail);
+
+      // Red Enamel Thermos beside the angler at (1.58, 0.06, -0.10)
+      const thermosGroup = new THREE.Group();
+      thermosGroup.position.set(1.58, 0.06, -0.10);
+      world.add(thermosGroup);
+
+      const thermosBody = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.085, 0.09, 0.32, 12),
+        new THREE.MeshStandardMaterial({ color: 0xc84b31, roughness: 0.4 })
+      );
+      thermosBody.position.y = 0.16;
+      thermosBody.castShadow = true;
+      thermosGroup.add(thermosBody);
+
+      const thermosCup = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.088, 0.085, 0.09, 12),
+        new THREE.MeshStandardMaterial({ color: 0xe6dfd3, roughness: 0.35 })
+      );
+      thermosCup.position.y = 0.35;
+      thermosGroup.add(thermosCup);
+
+      // Rising Steam Puffs above thermos
+      const steamPuffs = [];
+      for (let i = 0; i < 4; i++) {
+        const puff = new THREE.Mesh(
+          new THREE.SphereGeometry(0.045, 8, 8),
+          new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.65 })
+        );
+        thermosGroup.add(puff);
+        steamPuffs.push(puff);
+      }
+
+      // 6E. Cast Member 1: Finn (Lead Angler seated on stool)
+      const finn = buildWinterPerson({
+        parka: 0x2f5b3a,
+        pants: 0x23262b,
+        hat: 0x23262b,
+        scarf: 0xe6dfd3
+      });
+      finn.root.position.set(1.02, 0.06, -0.52);
+      finn.root.rotation.y = -2.25; // Facing the ice hole
+      world.add(finn.root);
+
+      // Articulated Cedar Fishing Rod attached to Finn's right hand
+      const rodGroup = new THREE.Group();
+      finn.wristR.add(rodGroup);
+
+      const rodSegments = [];
+      let parentSeg = rodGroup;
+      const segLengths = [0.42, 0.40, 0.38, 0.34];
+      const segRadii   = [0.022, 0.017, 0.012, 0.008];
+      for (let i = 0; i < 4; i++) {
+        const segPivot = new THREE.Group();
+        if (i > 0) segPivot.position.z = segLengths[i - 1];
+        parentSeg.add(segPivot);
+
+        const segMesh = new THREE.Mesh(
+          new THREE.CylinderGeometry(segRadii[i] * 0.8, segRadii[i], segLengths[i], 8),
+          matWood
+        );
+        segMesh.rotation.x = Math.PI / 2;
+        segMesh.position.z = segLengths[i] * 0.5;
+        segMesh.castShadow = true;
+        segPivot.add(segMesh);
+
+        rodSegments.push(segPivot);
+        parentSeg = segPivot;
+      }
+      const rodTipMarker = new THREE.Object3D();
+      rodTipMarker.position.z = segLengths[3];
+      parentSeg.add(rodTipMarker);
+
+      // Dynamic Fishing Line (Line geometry updated per frame)
+      const linePts = [];
+      for (let i = 0; i <= 12; i++) linePts.push(new THREE.Vector3());
+      const lineGeo = new THREE.BufferGeometry().setFromPoints(linePts);
+      const fishingLine = new THREE.Line(
+        lineGeo,
+        new THREE.LineBasicMaterial({ color: 0x343b46, linewidth: 1.5 })
+      );
+      world.add(fishingLine);
+
+      // Red & White Bobber inside the ice hole
+      const bobberGroup = new THREE.Group();
+      bobberGroup.position.set(holePos.x, 0.08, holePos.z);
+      world.add(bobberGroup);
+      const bobTop = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 8, 0, Math.PI * 2, 0, Math.PI * 0.5), new THREE.MeshStandardMaterial({ color: 0xeb564b }));
+      const bobBot = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 8, 0, Math.PI * 2, Math.PI * 0.5, Math.PI * 0.5), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+      bobberGroup.add(bobTop, bobBot);
+
+      // 6F. Cast Member 2: Maya (Camp Scout walking along the snowy ridge with lantern)
+      const maya = buildWinterPerson({
+        parka: 0xc84b31,
+        pants: 0x24344d,
+        hat: 0x24344d,
+        scarf: 0xd99b26
+      });
+      world.add(maya.root);
+
+      // Brass Lantern in Maya's left hand
+      const lantern = new THREE.Group();
+      const lanternBody = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.065, 0.065, 0.14, 8),
+        new THREE.MeshStandardMaterial({ color: 0xffd166, emissive: 0xf4a261, emissiveIntensity: 0.65 })
+      );
+      lanternBody.position.y = -0.10;
+      lantern.add(lanternBody);
+      maya.wristL.add(lantern);
+
+      // 6G. Leaping Silver-Teal Trout + Water Ripple Rings + 18-Droplet Splash
+      const troutGroup = new THREE.Group();
+      troutGroup.visible = false;
+      world.add(troutGroup);
+
+      const matTroutTop = new THREE.MeshStandardMaterial({ color: 0x489fb5, roughness: 0.35, metalness: 0.15 });
+      const matTroutBelly = new THREE.MeshStandardMaterial({ color: 0xa8e4ef, roughness: 0.4 });
+      const troutBody = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 10), matTroutTop);
+      troutBody.scale.set(0.65, 0.85, 2.1);
+      troutBody.castShadow = true;
+      troutGroup.add(troutBody);
+
+      const troutTailPivot = new THREE.Group();
+      troutTailPivot.position.z = -0.30;
+      troutGroup.add(troutTailPivot);
+      const troutTail = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.22, 4), matTroutBelly);
+      troutTail.rotation.x = -Math.PI / 2;
+      troutTail.scale.x = 0.35;
+      troutTailPivot.add(troutTail);
+
+      // Concentric water ripple rings in the ice hole (water.js)
+      const rippleRings = [];
+      for (let i = 0; i < 3; i++) {
+        const rGeo = new THREE.RingGeometry(0.12, 0.17, 28);
+        rGeo.rotateX(-Math.PI / 2);
+        const rMat = new THREE.MeshBasicMaterial({ color: 0xa8e4ef, transparent: true, opacity: 0.0, side: THREE.DoubleSide });
+        const rMesh = new THREE.Mesh(rGeo, rMat);
+        rMesh.position.set(holePos.x, 0.09, holePos.z);
+        world.add(rMesh);
+        rippleRings.push(rMesh);
+      }
+
+      // 18 Water Splash Droplets (splash.js)
+      const droplets = [];
+      const dropMat = new THREE.MeshStandardMaterial({ color: 0xa8e4ef, roughness: 0.2 });
+      for (let i = 0; i < 18; i++) {
+        const drop = new THREE.Mesh(new THREE.SphereGeometry(0.042, 8, 8), dropMat);
+        drop.visible = false;
+        world.add(drop);
+        const angle = (i / 18) * Math.PI * 2 + (i % 3) * 0.2;
+        const speed = 0.55 + (i % 4) * 0.18;
+        droplets.push({
+          mesh: drop,
+          vx: Math.cos(angle) * speed,
+          vz: Math.sin(angle) * speed,
+          vy: 1.55 + (i % 3) * 0.45
+        });
+      }
+
+      return {
+        world,
+        holePos,
+        finn,
+        maya,
+        rodGroup,
+        rodSegments,
+        rodTipMarker,
+        fishingLine,
+        bobberGroup,
+        troutGroup,
+        troutTailPivot,
+        bucketGroup,
+        thermosGroup,
+        steamPuffs,
+        rippleRings,
+        droplets,
+        swayTrees
+      };
+    }
+
+    // 7. Pure-Function Timeline Stage Animator: applyStage(stage, t) (stage.js)
+    function applyStage(s, rawT) {
+      const t = ((rawT % LOOP_DURATION) + LOOP_DURATION) % LOOP_DURATION;
+
+      // A. Gentle Alpine Breeze on Snow Pines & Birches
+      s.swayTrees.forEach((tr, idx) => {
+        tr.rotation.z = Math.sin(t * 1.4 + idx * 1.1) * 0.022;
+        tr.rotation.x = Math.cos(t * 1.1 + idx * 0.7) * 0.015;
+      });
+
+      // B. Rising Steam Puffs from Red Enamel Thermos
+      s.steamPuffs.forEach((puff, i) => {
+        const phase = (t * 0.65 + i * 0.25) % 1.0;
+        puff.position.set(
+          Math.sin(t * 2.2 + i) * 0.04,
+          0.42 + phase * 0.48,
+          Math.cos(t * 1.8 + i) * 0.04
+        );
+        const sc = (1.0 - phase) * 1.15;
+        puff.scale.setScalar(Math.max(0.01, sc));
+      });
+
+      // C. Finn (Seated Angler) Pose Across the 5 Beats
+      // Base seated legs on stool
+      s.finn.pelvis.position.y = 0.46;
+      s.finn.hipL.rotation.set(-1.35, 0.15, 0);
+      s.finn.kneeL.rotation.x = 1.38;
+      s.finn.hipR.rotation.set(-1.35, -0.15, 0);
+      s.finn.kneeR.rotation.x = 1.38;
+
+      // Torso lean: leans forward on Beat 2 (Bite), hauls back on Beat 3 (Splash), turns to bucket/thermos on Beats 4–5
+      const torsoPitch = keysAt(t, [
+        [0.0,  0.14], [1.2, -0.10], [2.4,  0.16], // Beat 1: Cast flick
+        [4.5,  0.16], [5.8,  0.34], [7.8,  0.38], // Beat 2: Lean in on bite
+        [8.0,  0.38], [8.8, -0.36], [11.2,-0.22], // Beat 3: Big haul back!
+        [13.0, 0.10], [16.5, 0.12],               // Beat 4: Settle & admire catch
+        [17.0, 0.08], [20.0, 0.14]                // Beat 5: Sip thermos & loop seam
+      ]);
+      const torsoYaw = keysAt(t, [
+        [0.0,  0.0], [12.5, 0.0],
+        [13.4, 0.35], [16.2, 0.28], // Look toward bucket & Maya
+        [17.2,-0.45], [19.0,-0.40], [20.0, 0.0] // Turn slightly right toward red thermos
+      ]);
+      s.finn.torso.rotation.set(torsoPitch, torsoYaw, 0);
+      s.finn.head.rotation.set(-torsoPitch * 0.4 + Math.sin(t * 2.0) * 0.04, torsoYaw * 0.5, 0);
+
+      // Finn Right Arm (holding cedar fishing rod)
+      const armRPitch = keysAt(t, [
+        [0.0, -0.85], [1.1, -1.55], [2.1, -0.78], // Overhead cast & settle
+        [4.5, -0.78], [6.0, -0.62], [7.8, -0.58], // Lower tip toward bite
+        [8.0, -0.58], [8.9, -1.68], [11.5,-1.35], // High hook-set & reel arc
+        [13.2,-0.82], [20.0,-0.85]
+      ]);
+      s.finn.shoulderR.rotation.set(armRPitch, -0.12, 0);
+      s.finn.elbowR.rotation.x = -0.55;
+      s.finn.wristR.rotation.x = 0.35;
+
+      // Finn Left Arm (reeling handle on Beat 3, waving on Beat 4, sipping thermos on Beat 5)
+      const armLPitch = keysAt(t, [
+        [0.0, -0.55], [4.5, -0.55],
+        [5.5, -0.85], [12.5,-1.05], // Two-handed reel support
+        [13.5,-2.15], [15.5,-2.05], // Cheer / wave at Maya
+        [16.8,-0.75], [18.0,-1.45], [19.2,-1.45], [20.0,-0.55] // Sip warm thermos
+      ]);
+      s.finn.shoulderL.rotation.set(armLPitch, 0.22, 0);
+      s.finn.elbowL.rotation.x = t > 8.0 && t < 12.5 ? -0.95 + Math.sin(t * 14.0) * 0.28 : -0.65;
+
+      // Thermos lifts to Finn's left hand during Beat 5 (17.2s - 19.4s)
+      if (t >= 17.0 && t <= 19.5) {
+        const sipU = smooth(Math.min((t - 17.0) / 0.6, (19.5 - t) / 0.6, 1.0));
+        s.thermosGroup.position.set(
+          lerp(1.58, 1.15, sipU),
+          lerp(0.06, 0.78, sipU),
+          lerp(-0.10, -0.38, sipU)
+        );
+      } else {
+        s.thermosGroup.position.set(1.58, 0.06, -0.10);
+      }
+
+      // D. Fishing Rod Bend & Bobber Motion
+      const rodBend = keysAt(t, [
+        [0.0,  0.04], [1.2, -0.12], [2.2, 0.05],
+        [4.8,  0.05], [5.6,  0.22], [7.8, 0.28], // Bite tugs rod tip down
+        [8.0,  0.28], [8.9,  0.42], [11.2,0.30], // Heavy fish load bend
+        [12.8, 0.04], [20.0, 0.04]
+      ]);
+      s.rodSegments.forEach((seg, i) => {
+        seg.rotation.x = rodBend * (0.4 + i * 0.28);
+      });
+
+      // Bobber dip on Beat 2 (4.5s - 8.0s)
+      let bobY = 0.08 + Math.sin(t * 3.2) * 0.012;
+      if (t >= 4.5 && t <= 8.0) {
+        bobY = 0.06 - Math.abs(Math.sin((t - 4.5) * 5.5)) * 0.09;
+      } else if (t > 8.0 && t < 13.0) {
+        bobY = 0.35; // Pulled up with line during breach
+      }
+      s.bobberGroup.position.set(s.holePos.x, bobY, s.holePos.z);
+
+      // E. Silver-Teal Trout Parabolic Breach (Beat 3: 8.2s – 13.2s)
+      const fishStart = 8.2, fishEnd = 13.2;
+      if (t >= fishStart && t <= fishEnd) {
+        s.troutGroup.visible = true;
+        const u = clamp01((t - fishStart) / (fishEnd - fishStart));
+        // Arc from ice hole (-0.20, 0.06, 0.42) into oak catch bucket (-0.68, 0.25, -0.88)
+        const fx = lerp(s.holePos.x, -0.68, u);
+        const fz = lerp(s.holePos.z, -0.88, u);
+        const fy = 0.12 + Math.sin(u * Math.PI) * 1.95;
+        s.troutGroup.position.set(fx, fy, fz);
+        s.troutGroup.rotation.set(
+          (u - 0.5) * 2.6,
+          Math.atan2(-0.68 - s.holePos.x, -0.88 - s.holePos.z),
+          Math.sin(t * 9.0) * 0.22
+        );
+        s.troutTailPivot.rotation.y = Math.sin(t * 28.0) * 0.55;
+      } else {
+        s.troutGroup.visible = false;
+      }
+
+      // Bucket bounce when fish lands at t = 13.2s
+      if (t >= 13.1 && t <= 14.4) {
+        const bu = (t - 13.1) / 1.3;
+        s.bucketGroup.scale.set(
+          1 + Math.sin(bu * Math.PI * 4) * 0.08 * (1 - bu),
+          1 - Math.sin(bu * Math.PI * 4) * 0.08 * (1 - bu),
+          1 + Math.sin(bu * Math.PI * 4) * 0.08 * (1 - bu)
+        );
+      } else {
+        s.bucketGroup.scale.set(1, 1, 1);
+      }
+
+      // Update Dynamic Catenary Fishing Line from Rod Tip to Bobber/Trout
+      s.world.updateMatrixWorld(true);
+      const tipWorld = new THREE.Vector3();
+      s.rodTipMarker.getWorldPosition(tipWorld);
+      s.world.worldToLocal(tipWorld);
+
+      const lineTarget = s.troutGroup.visible
+        ? s.troutGroup.position.clone()
+        : s.bobberGroup.position.clone();
+
+      const posAttr = s.fishingLine.geometry.attributes.position;
+      for (let i = 0; i <= 12; i++) {
+        const u = i / 12;
+        const lx = lerp(tipWorld.x, lineTarget.x, u);
+        const lz = lerp(tipWorld.z, lineTarget.z, u);
+        const sag = (t > 8.0 && t < 13.0) ? 0.02 : 0.18;
+        const ly = lerp(tipWorld.y, lineTarget.y, u) - Math.sin(u * Math.PI) * sag;
+        posAttr.setXYZ(i, lx, ly, lz);
+      }
+      posAttr.needsUpdate = true;
+
+      // F. Water Ripple Rings & 18-Droplet Splash (water.js + splash.js)
+      s.rippleRings.forEach((ring, idx) => {
+        const rPhase = ((t * 0.55 + idx * 0.33) % 1.0);
+        const intensity = (t >= 4.5 && t <= 12.5) ? 1.0 : 0.45;
+        ring.scale.setScalar(1.0 + rPhase * 4.8);
+        ring.material.opacity = (1.0 - rPhase) * 0.55 * intensity;
+      });
+
+      const splashT = t - 8.25;
+      s.droplets.forEach((d) => {
+        if (splashT >= 0 && splashT <= 1.65) {
+          d.mesh.visible = true;
+          d.mesh.position.set(
+            s.holePos.x + d.vx * splashT,
+            Math.max(0.06, 0.08 + d.vy * splashT - 0.5 * 3.2 * splashT * splashT),
+            s.holePos.z + d.vz * splashT
+          );
+          const sc = Math.max(0.01, 1.0 - splashT / 1.65);
+          d.mesh.scale.setScalar(sc);
+        } else {
+          d.mesh.visible = false;
+        }
+      });
+
+      // G. Cast Member 2: Maya (Camp Scout walking snow ridge, pointing on Beat 2, cheering on Beat 3)
+      const mayaX = keysAt(t, [
+        [0.0, -2.85], [4.5, -1.65], [14.5, -1.65], [20.0, -2.85]
+      ]);
+      const mayaZ = keysAt(t, [
+        [0.0,  1.25], [4.5, -0.35], [14.5, -0.35], [20.0,  1.25]
+      ]);
+      const isWalking = (t < 4.5) || (t > 14.5);
+      s.maya.root.position.set(mayaX, 0.08, mayaZ);
+      s.maya.root.rotation.y = (t > 14.5) ? -2.45 : 0.85;
+
+      if (isWalking) {
+        const wPhase = t * 5.2;
+        const stride = Math.sin(wPhase);
+        s.maya.pelvis.position.y = 0.72 + Math.abs(Math.cos(wPhase)) * 0.035;
+        s.maya.hipL.rotation.x = stride * 0.48;
+        s.maya.kneeL.rotation.x = Math.max(0, -stride * 0.55);
+        s.maya.hipR.rotation.x = -stride * 0.48;
+        s.maya.kneeR.rotation.x = Math.max(0, stride * 0.55);
+        s.maya.shoulderL.rotation.set(-0.55, 0, 0); // Holding lantern steady
+        s.maya.shoulderR.rotation.set(stride * 0.38, 0, 0);
+        s.maya.torso.rotation.x = 0.08;
+      } else {
+        s.maya.pelvis.position.y = 0.72;
+        s.maya.hipL.rotation.x = 0;
+        s.maya.kneeL.rotation.x = 0;
+        s.maya.hipR.rotation.x = 0;
+        s.maya.kneeR.rotation.x = 0;
+        s.maya.shoulderL.rotation.set(-0.65, 0, 0);
+
+        if (t >= 4.5 && t < 8.0) {
+          // Beat 2: Pointing toward the dipping bobber
+          s.maya.shoulderR.rotation.set(-1.35, -0.25, 0);
+          s.maya.elbowR.rotation.x = -0.15;
+        } else if (t >= 8.0 && t < 13.0) {
+          // Beat 3: Cheering as the trout leaps!
+          const cheer = Math.sin(t * 10.0) * 0.25;
+          s.maya.shoulderR.rotation.set(-2.55 + cheer, 0, -0.2);
+          s.maya.pelvis.position.y = 0.72 + Math.abs(Math.sin(t * 8.0)) * 0.08;
+        } else {
+          // Beat 4: Waving back at Finn
+          s.maya.shoulderR.rotation.set(-2.2, 0, Math.sin(t * 9.0) * 0.35);
+        }
+      }
+    }
+
+    // 8. Initialize Renderer, Lighting, Camera & Animation Loop
+    const canvas = document.getElementById('stage');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(1);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const scene = new THREE.Scene();
+
+    // Outdoor Daylight Rig (lighting.js)
+    const hemi = new THREE.HemisphereLight(0xf4f8ff, 0x7b6a58, 0.72);
+    scene.add(hemi);
+
+    const sun = new THREE.DirectionalLight(0xfff5e4, 1.18);
+    sun.position.set(-9.5, 15.0, 8.5);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.near = 2;
+    sun.shadow.camera.far = 38;
+    const d = 8.2;
+    sun.shadow.camera.left = -d;
+    sun.shadow.camera.right = d;
+    sun.shadow.camera.top = d;
+    sun.shadow.camera.bottom = -d;
+    sun.shadow.bias = -0.0005;
+    scene.add(sun);
+
+    const fill = new THREE.DirectionalLight(0xbfd8f2, 0.35);
+    fill.position.set(8, 6, -8);
+    scene.add(fill);
+
+    const stage = buildDioramaWorld(scene, renderer);
+    const bounds = new THREE.Box3(new THREE.Vector3(-5.8, -0.9, -5.8), new THREE.Vector3(5.8, 2.7, 5.8));
+    let camera = createDioramaCamera(window.innerWidth / window.innerHeight, bounds);
+    const post = createPixelPost(renderer, PALETTE_HEX, 2);
+
+    function onResize() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      renderer.setSize(w, h, false);
+      camera = createDioramaCamera(w / h, bounds);
+      post.setSize(w, h, 2);
+    }
+    window.addEventListener('resize', onResize);
+    onResize();
+
+    // Support ?t= query parameter per sloemo01/diorama verification protocol
+    const params = new URLSearchParams(window.location.search);
+    const frozenParam = params.get('t');
+    let playing = frozenParam === null;
+    let simTime = frozenParam !== null ? parseFloat(frozenParam) : 0;
+    let ditherEnabled = true;
+    let lastNow = performance.now();
+
+    const scrubber = document.getElementById('scrubber');
+    const timeReadout = document.getElementById('time-readout');
+    const btnPlay = document.getElementById('btn-play');
+    const btnDither = document.getElementById('btn-dither');
+
+    window.togglePlay = function() {
+      playing = !playing;
+      btnPlay.textContent = playing ? '⏸ Pause' : '▶ Play';
+      btnPlay.classList.toggle('active', playing);
+    };
+    window.jumpBeat = function(targetT) {
+      simTime = targetT;
+      scrubber.value = simTime;
+      timeReadout.textContent = simTime.toFixed(1) + 's';
+    };
+    window.scrubTo = function(val) {
+      playing = false;
+      btnPlay.textContent = '▶ Play';
+      btnPlay.classList.remove('active');
+      simTime = parseFloat(val);
+      timeReadout.textContent = simTime.toFixed(1) + 's';
+    };
+    window.toggleDither = function() {
+      ditherEnabled = !ditherEnabled;
+      btnDither.textContent = ditherEnabled ? 'PixelPost: ON' : 'PixelPost: OFF';
+      btnDither.classList.toggle('active', ditherEnabled);
+    };
+
+    function tick(now) {
+      const dt = Math.min(0.1, (now - lastNow) * 0.001);
+      lastNow = now;
+      if (playing) {
+        simTime = (simTime + dt) % LOOP_DURATION;
+        scrubber.value = simTime;
+        timeReadout.textContent = simTime.toFixed(1) + 's';
+      }
+      applyStage(stage, simTime);
+      post.render(scene, camera, ditherEnabled);
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  </script>
+</body>
+</html>
+
